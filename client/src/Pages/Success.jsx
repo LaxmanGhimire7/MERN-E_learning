@@ -1,12 +1,11 @@
 import React from 'react'
 
-function OrderHistory() {
+function Success() {
   return (
     <div>
-      No order yet
       
     </div>
   )
 }
 
-export default OrderHistory
+export default Success

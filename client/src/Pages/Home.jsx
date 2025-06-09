@@ -19,17 +19,14 @@ import Footer from "./Footer";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthProvider";
-import elearning from "../images/elearning.png"
-import tutoring from "../images/tutoring.png"
+import elearning from "../images/elearning.png";
+import tutoring from "../images/tutoring.png";
 import { HiUserGroup } from "react-icons/hi";
 import { MdVerified } from "react-icons/md";
 
 function Home() {
   const navigate = useNavigate();
   const [course, setCourse] = useState([]);
-
-
-
 
   const getCourse = async () => {
     let response = await fetch("http://localhost:9000/api/course/getAllCourse");
@@ -48,7 +45,7 @@ function Home() {
   //       direction === "prev" ? "top-80 left-52" : "top-80 left-40"
   //     }`}
   //   >
-     
+
   //   </button>
   // );
 
@@ -87,8 +84,6 @@ function Home() {
     // nextArrow: <CustomArrow direction="next" />,
   };
 
-  
-
   return (
     <>
       <div
@@ -125,9 +120,12 @@ function Home() {
                   </p>
 
                   <div className="gap-7 flex w-fit  justify-center text-center">
-                    <button onClick={()=>{
-                      navigate("/allCourses")
-                    }} className="mt-8 flex gap-2 items-center bg-gradient-to-r from-blue-600 to-blue-950 text-white rounded-full text-sm p-3 font-medium ">
+                    <button
+                      onClick={() => {
+                        navigate("/allCourses");
+                      }}
+                      className="mt-8 flex gap-2 items-center bg-gradient-to-r from-blue-600 to-blue-950 text-white rounded-full text-sm p-3 font-medium "
+                    >
                       Enroll Now <FaArrowCircleRight />
                     </button>
 
@@ -307,14 +305,17 @@ function Home() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/course/${item._id}`);
+                          navigate("/allCourses");
                         }}
                         className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                       >
                         Enroll Now
                       </button>
                       <button
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/cart");
+                        }}
                         className="aspect-square p-3 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-lg transition-all flex items-center justify-center hover:border-blue-700 hover:text-blue-700"
                       >
                         <FaShoppingCart className="w-6 h-6" />
@@ -334,24 +335,32 @@ function Home() {
             </button>
           </div>
         </div>
-      
 
-      {/* This is for another section */}
+        {/* This is for another section */}
 
-<div class="bg-[linear-gradient(135deg,_#2f3493_70%,_white_50%,_#ffc107_80%)] h-52 w-full text-white mt-24 relative">
-  <img className="absolute left-[990px] -top-20 h-72 w-96" src={elearning} alt="" />
+        <div className="bg-[linear-gradient(135deg,_#2f3493_70%,_white_50%,_#ffc107_80%)] h-52 w-full text-white mt-24 relative">
+          <img
+            className="absolute left-[990px] -top-20 h-72 w-96"
+            src={elearning}
+            alt=""
+          />
 
-<div className="absolute top-2">
-  <h1 className="text-3xl font-serif p-6 relative left-4">ALL THE </h1>
-  <h1 className="text-3xl font-serif relative left-16 -top-3">SKILLS YOU NEED IN ONE PLACE</h1>
-  <p className="text-l relative left-16 font-serif">From Critical skills To Technical Topics, <span className="font-bold">Sipalaya InfoTech</span> Supports Your Professional </p>
-</div>
-  
-  
-</div>
+          <div className="absolute top-2">
+            <h1 className="text-3xl font-serif p-6 relative left-4">
+              ALL THE{" "}
+            </h1>
+            <h1 className="text-3xl font-serif relative left-16 -top-3">
+              SKILLS YOU NEED IN ONE PLACE
+            </h1>
+            <p className="text-l relative left-16 font-serif">
+              From Critical skills To Technical Topics,{" "}
+              <span className="font-bold">Sipalaya InfoTech</span> Supports Your
+              Professional{" "}
+            </p>
+          </div>
+        </div>
 
-
- <div className="flex flex-wrap justify-center gap-10 py-20">
+        <div className="flex flex-wrap justify-center gap-10 py-20">
           {/* Left Column - Text and Image */}
           <div className="max-w-md">
             <h1 className="font-semibold text-3xl mb-4">

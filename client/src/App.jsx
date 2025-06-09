@@ -27,6 +27,7 @@ import Cart from "./Pages/Cart";
 import Payment from "./Pages/Payment";
 import OrderHistory from "./Pages/OrderHistory";
 import Contact from "./Pages/Contact";
+import Success from "./Pages/Success";
 
 
 
@@ -50,6 +51,7 @@ function App() {
   <Route path="/students-login" element={<Login />} />
    <Route path="/CourseDetails/" element={<CourseDetails />} />
   <Route path="/registration" element={<Registration />} />
+  <Route path="/success/:id" element={<Success />} />
   <Route path="/choosingSipalaya" element={<ChoosingSipalaya />} />
   <Route path="/footer" element={<Footer />} />
   <Route path="/termsAndConditions" element={<TermsAndConditions />} />

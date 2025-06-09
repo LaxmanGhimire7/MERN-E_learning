@@ -72,7 +72,7 @@ function Payment() {
           type="hidden"
           id="success_url"
           name="success_url"
-          value="https://developer.esewa.com.np/success"
+          value="http://localhost:9000/api/order/success"
           required
         />
         <input
