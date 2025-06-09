@@ -1,6 +1,6 @@
 import sipalayalogo from "../assets/sipalayalogo.png";
 import esewa from "../images/esewa.png";
-import khalti from "../images/khalti.png";
+import khalti from "../images/Khalti.png";
 import stripe from "../images/stripe.png";
 import paypal from "../images/paypal.png";
 import { FaFacebook } from "react-icons/fa";
