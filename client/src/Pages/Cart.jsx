@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import esewa from "../images/esewa.png";
-import khalti from "../images/khalti.png";
+import khalti from "../images/Khalti.png";
 import stripe from "../images/stripe.png";
 import paypal from "../images/paypal.png";
 
