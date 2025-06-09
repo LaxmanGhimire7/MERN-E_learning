@@ -213,7 +213,7 @@ This project is licensed under the **[MIT License](LICENSE)**—freely usable an
 
 ## 👤 Maintainer
 
-**\[Laxman B. Ghimire]** – *Your role or brief bio*
+**\[Laxman B. Ghimire]** 
 
 * GitHub: (https://github.com/LaxmanGhimire7))
 * Email: [ghimirelaxman2155@gmail.com](mailto:ghimirelaxman2155@gmail.com)
