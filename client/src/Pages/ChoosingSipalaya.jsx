@@ -1,8 +1,6 @@
-import {
-  FaAward,
-} from "react-icons/fa";
-import homebackground from "../images/homebackground.png";  // Use this as background or one image
-import secondaryImage from "../images/homebackground.png";  // Add second image if you want overlap
+import { FaAward } from "react-icons/fa";
+import homebackground from "../images/homebackground.png";
+import secondaryImage from "../images/homebackground.png";
 
 function ChoosingSipalaya() {
   const steps = [
@@ -49,28 +47,28 @@ function ChoosingSipalaya() {
   ];
 
   return (
-    <div className="py-16 px-4 bg-white">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
+    <div className="py-20 px-6 bg-gray-50">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
         {/* LEFT SIDE - IMAGES */}
         <div className="relative w-full lg:w-1/2 flex justify-center">
           <img
             src={homebackground}
             alt="Sipalaya Classroom"
-            className="rounded-xl shadow-lg w-4/5"
+            className="rounded-xl shadow-2xl w-4/5 transition-transform duration-500 hover:scale-105"
           />
           <img
             src={secondaryImage}
             alt="Students"
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-xl w-2/3 border-4 border-white"
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-xl w-2/3 border-4 border-white opacity-90 transition-transform duration-500 hover:scale-110"
           />
         </div>
 
         {/* RIGHT SIDE - TEXT */}
         <div className="w-full lg:w-1/2">
-          <div className="flex items-center mb-6">
-            <FaAward className="text-blue-500 text-4xl mr-3" />
+          <div className="flex items-center mb-8">
+            <FaAward className="text-yellow-400 text-5xl mr-4 animate-pulse" />
             <div>
-              <h2 className="text-4xl font-bold text-gray-900">#1</h2>
+              <h2 className="text-5xl font-extrabold text-blue-900 mb-1">#1</h2>
               <p className="text-lg text-gray-700">Professional IT Training Institute in Nepal</p>
             </div>
           </div>
@@ -78,13 +76,20 @@ function ChoosingSipalaya() {
           {/* Steps */}
           <div className="space-y-6">
             {steps.map((step, index) => (
-              <div key={index} className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-bold">
-                  {index+1}
+              <div
+                key={index}
+                className="flex items-start gap-4 group hover:bg-white hover:shadow-lg transition duration-300 p-3 rounded-lg"
+              >
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-bold group-hover:bg-blue-700 transition-colors duration-300">
+                  {index + 1}
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-1">{step.title}</h3>
-                  <p className="text-gray-600 text-sm">{step.description}</p>
+                  <h3 className="text-lg font-semibold text-blue-900 mb-1 group-hover:text-blue-700 transition-colors duration-300">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    {step.description}
+                  </p>
                 </div>
               </div>
             ))}

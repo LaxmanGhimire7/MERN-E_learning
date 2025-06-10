@@ -152,7 +152,7 @@ function Home() {
         </div>
 
         {/* Another Section Start yeta bata */}
-        <div className="flex p-20 justify-center gap-20 shadow-blue-100 shadow-2xl">
+        <div className="flex p-20 justify-center gap-20 bg-gray-50">
           {/* Card 1 */}
           <div className="group shadow-2xl p-4 h-32 w-96 cursor-pointer rounded-2xl flex gap-x-5 transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-indigo-900 hover:to-blue-600">
             <div className="flex justify-center items-center rounded-full border border-dashed w-12 h-12 mt-6 transition-colors duration-300 group-hover:border-white">
@@ -215,8 +215,8 @@ function Home() {
         <ChoosingSipalaya />
 
         {/* Calling the course */}
-        <div>
-          <h1 className="font-semibold text-2xl text-center ">
+        <div className="py-3">
+          <h1 className="font-semibold text-2xl text-center font-serif">
             Our Featured Course
           </h1>
           <div className="flex flex-wrap gap-12 justify-center mt-10">

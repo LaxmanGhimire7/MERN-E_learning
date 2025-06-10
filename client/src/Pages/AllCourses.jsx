@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import homebackground from "../images/homebackground.png";
 import { IoSearchSharp } from "react-icons/io5";
 import { CartContext } from "../Context/CartProvider";
+import Footer from "./Footer";
 
 function AllCourses() {
   const {dispatch} = useContext(CartContext);
@@ -75,9 +76,9 @@ function AllCourses() {
       </div>
 
       {/* Courses List */}
-      <div className="p-10 min-h-screen bg-gray-50">
+      <div className="p-10 min-h-screen ">
         {filteredCourses.length > 0 ? (
-          <div className="flex flex-wrap ml-12 gap-12 mt-12">
+          <div className="flex flex-wrap ml-12 gap-12 mt-12 ">
             {filteredCourses.map((item) => (
               <div
                 key={item._id}
@@ -196,6 +197,9 @@ function AllCourses() {
           </div>
         )}
       </div>
+
+      <Footer />
+
     </>
   );
 }

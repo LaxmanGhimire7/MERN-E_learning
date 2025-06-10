@@ -21,7 +21,7 @@ ChartJS.register(
 
 function AdminHome() {
   const [latestCourses, setLatestCourses] = useState([]);
-  const [getOrders, setGetOrders] = useState([]);
+
 
   const { state } = useContext(AuthContext);
 
@@ -41,35 +41,6 @@ function AdminHome() {
     getCourses();
   }, []);
 
-  const getAllOrders = async () => {
-    try {
-      let response = await fetch(
-        "http://localhost:9000/api/order/getAllOrders",
-        {
-          headers: {
-            Authorization: `Bearer ${state.token}`,
-          },
-        }
-      );
-
-      let data = await response.json();
-
-      if (data?.orders) {
-        const successfulOrders = data.orders.filter(
-          (order) => order.paymentStatus === "success"
-        );
-        setGetOrders(successfulOrders);
-      } else {
-        console.error("Unexpected response format:", data);
-      }
-    } catch (error) {
-      console.log("Error fetching orders:", error);
-    }
-  };
-
-  useEffect(() => {
-    getAllOrders();
-  }, []);
 
   // const salesChartData = {
   //   labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
@@ -126,31 +97,7 @@ function AdminHome() {
         </ul>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">Successful Orders</h3>
-        {getOrders.length > 0 ? (
-          <ul className="space-y-3">
-            {getOrders.map((order) => (
-              <li key={order._id} className="border-b pb-2">
-                <div className="font-medium text-gray-800">
-                  User: {order.user?.name || "Unknown"}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Course: {order.course?.name || "N/A"}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Amount Paid: Rs {order.amount}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Date: {new Date(order.createdAt).toLocaleDateString()}
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-gray-500">No successful orders yet.</p>
-        )}
-      </div>
+
     </div>
   );
 }
