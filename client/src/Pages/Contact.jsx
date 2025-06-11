@@ -38,7 +38,7 @@ function Contact() {
 
   const data = await response.json();
   console.log(data);
-  toast.success("Message sent successfully!");
+  alert("Message sent successfully!");
 
   setFullName("");
   setEmail("");
