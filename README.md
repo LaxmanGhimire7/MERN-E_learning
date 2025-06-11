@@ -66,7 +66,7 @@ A **full-stack e‑learning web application** built with the MERN stack (MongoDB
 1. **Clone the repo**
 
    ```bash
-   git clone https://github.com/your-username/MERN-E_learning.git
+   git clone https://github.com/LaxmanGhimire7/MERN-E_learning.git
    cd MERN-E_learning
    ```
 
@@ -75,7 +75,7 @@ A **full-stack e‑learning web application** built with the MERN stack (MongoDB
    ```bash
    cd backend
    npm install
-   cp .env.example .env
+   
    # Edit .env with DB URI, JWT secret
    npm run dev
    ```
@@ -140,14 +140,9 @@ Make `.env` files by copying `.env.example` and filling in:
 
 ```env
 # backend/.env
-MONGO_URI=your_mongodb_uri
+PORT: Port no in which the server is running
 JWT_SECRET=your_jwt_secret
-STRIPE_SECRET_KEY=your_stripe_key
-PAYPAL_CLIENT_ID=your_paypal_client_id
 
-# frontend/.env
-:contentReference[oaicite:32]{index=32}
-```
 
 ---
 
