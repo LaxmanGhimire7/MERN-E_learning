@@ -1,9 +1,55 @@
-
-
+import { toast } from "react-toastify";
+import { useState } from "react";
 import contact from "../images/contact.png";
 import Footer from "./Footer";
 
+
 function Contact() {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [course, setCourse] = useState("");
+  const [message, setMessage] = useState("");
+
+  const createContact = async (e) => {
+    e.preventDefault();
+    if (!fullName || !email || !message || !course) {
+  toast.info("All fields are required");
+  return;
+}
+
+   try {
+  let response = await fetch("http://localhost:9000/api/contact/createContact", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      fullName,
+      email,
+      course,
+      message,
+    }),
+  });
+
+  if (!response.ok) {
+    toast.error("Something went wrong!");
+    return;
+  }
+
+  const data = await response.json();
+  console.log(data);
+  toast.success("Message sent successfully!");
+
+  setFullName("");
+  setEmail("");
+  setCourse("");
+  setMessage("");
+} catch (error) {
+  toast.error("Error: " + error.msg);
+}
+
+  };
+
   return (
     <>
       <div className="bg-white">
@@ -15,7 +61,7 @@ function Contact() {
         </p>
 
         {/* Banner */}
-       <div className="bg-[linear-gradient(135deg,_#2f3493_70%,_white_50%,_#ffc107_80%)] h-52 w-full text-white mt-24 relative">
+        <div className="bg-[linear-gradient(135deg,_#2f3493_70%,_white_50%,_#ffc107_80%)] h-52 w-full text-white mt-24 relative">
           <img
             className="absolute left-[990px] -top-20 h-72 w-96"
             src={contact}
@@ -29,7 +75,7 @@ function Contact() {
               Our team will get in touch with you as soon as possible.
             </p>
           </div>
-        </div> 
+        </div>
 
         {/* Main Section: Map + Form */}
         <div className="flex flex-col lg:flex-row justify-center gap-10 px-6 py-28 lg:px-20 mb-20">
@@ -56,57 +102,80 @@ function Contact() {
               your career.
             </p>
 
-            <form className="flex flex-col gap-4">
+            <form onSubmit={createContact} className="flex flex-col gap-4">
               <div>
-                <label htmlFor="name" className="block font-medium text-gray-700">
+                <label
+                  htmlFor="name"
+                  className="block font-medium text-gray-700"
+                >
                   Full Name<span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   id="name"
                   required
+                  value={fullName}
+                  onChange={(e)=>{
+                    setFullName(e.target.value)
+                  }}
                   placeholder="Your Name"
                   className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block font-medium text-gray-700">
+                <label
+                  htmlFor="email"
+                  className="block font-medium text-gray-700"
+                >
                   Email<span className="text-red-600">*</span>
                 </label>
                 <input
                   type="email"
                   id="email"
                   required
+                  value={email}
+                  onChange={(e)=>{
+                    setEmail(e.target.value)
+                  }}
                   placeholder="Your Email"
                   className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="course" className="block font-medium text-gray-700">
+                <label
+                  htmlFor="course"
+                  className="block font-medium text-gray-700"
+                >
                   Course<span className="text-red-600">*</span>
                 </label>
-                <select
+                <input
                   id="course"
+                  value={course}
+                  onChange={(e)=>{
+                    setCourse(e.target.value)
+                  }}
                   required
                   className="w-full border border-gray-300 rounded-md p-3 mt-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select a course</option>
-                  <option value="web">Web Development</option>
-                  <option value="ai">AI & Machine Learning</option>
-                  <option value="cloud">Cloud Computing</option>
-                  <option value="graphic">Graphic Design</option>
-                </select>
+                  type="text"
+                />
               </div>
 
               <div>
-                <label htmlFor="message" className="block font-medium text-gray-700">
+                <label
+                  htmlFor="message"
+                  className="block font-medium text-gray-700"
+                >
                   Message
                 </label>
                 <textarea
                   id="message"
                   required
+                  value={message}
+                  onChange={(e)=>{
+                    setMessage(e.target.value)
+                  }}
                   rows="4"
                   placeholder="Write your message here..."
                   className="w-full border border-gray-300 rounded-md p-3 mt-1 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -130,5 +199,3 @@ function Contact() {
 }
 
 export default Contact;
-
-
