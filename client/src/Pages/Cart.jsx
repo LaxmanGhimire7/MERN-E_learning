@@ -8,7 +8,6 @@ import {
   FaTrash,
   FaShoppingBag,
   FaArrowLeft,
-  FaCheck,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import esewa from "../images/esewa.png";
@@ -21,9 +20,6 @@ function Cart() {
   const { state: cartState, dispatch } = useContext(CartContext);
   const { state: authState, user } = useContext(AuthContext);
 
-  
-
-  const [paymentMethod, setPaymentMethod] = useState("");
   const [phone, setPhone] = useState("");
   const [fullName, setFullName] = useState("");
 
@@ -44,16 +40,6 @@ function Cart() {
       return;
     }
 
-    if (!paymentMethod) {
-      toast.info("Please select a payment method.");
-      return;
-    }
-
-    if (!fullName && !phone.trim()) {
-      toast.error("Please enter your Full Name or phone number.");
-      return;
-    }
-
 
     const courses = cartState.cartItems.map((item) => ({
       courseId: item._id,
@@ -62,13 +48,9 @@ function Cart() {
     }));
 
     const payload = {
-      userId: user._id,
-      name: fullName,
-      email: user.email,
-      phone,
+
       courses,
       totalAmount,
-      paymentMethod,
     };
 
     try {
@@ -93,8 +75,8 @@ function Cart() {
 
       navigate("/payment", {
         state: {
-          totalAmount: totalAmount,
-          totalItem: totalItem,
+          totalAmount,
+          totalItem,
           courseId: data?.response?.courses?.[0]?.courseId,
         },
       });
@@ -246,27 +228,17 @@ function Cart() {
                   </div>
                 </div>
 
-                {/* Payment Method */}
+                {/* Payment Methods (Display only) */}
                 <div className="mb-6">
                   <label className="block mb-3 font-medium text-gray-700">
-                    Payment Method
+                    Payment Methods Available
                   </label>
                   <div className="flex flex-wrap gap-3">
                     {paymentMethods.map((item) => (
                       <div
                         key={item.id}
-                        onClick={() => setPaymentMethod(item.id)}
-                        className={`cursor-pointer border-2 rounded-lg p-3 transition-all flex flex-col items-center relative ${
-                          paymentMethod === item.id
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
+                        className="border rounded-lg p-3 flex flex-col items-center bg-gray-50"
                       >
-                        {paymentMethod === item.id && (
-                          <div className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-1">
-                            <FaCheck className="text-white text-xs" />
-                          </div>
-                        )}
                         <img
                           src={item.icon}
                           alt={item.name}
@@ -278,57 +250,22 @@ function Cart() {
                       </div>
                     ))}
                   </div>
+                 
                 </div>
 
-                {/* Registration Fields */}
-                <div className="mb-6">
-                  <label className="block mb-2 font-medium text-gray-700 ">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter Your Full Name"
-                    required
-                    className="w-full px-4 py-2 border rounded-lg  text-gray-600 cursor-text"
-                  />
-
-                  <label className="block mt-4 mb-2 font-medium text-gray-700">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={user?.email || ""}
-                    readOnly
-                    className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-                  />
-
-                  <label className="block mt-4 mb-2 font-medium text-gray-700">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Enter phone number"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    required
-                  />
-                </div>
 
                 <button
                   onClick={handleOrder}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all mb-4 flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all mb-4"
                 >
-                  Proceed to Checkout
+                  Place Order
                 </button>
 
                 <button
                   onClick={() => navigate("/allCourses")}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 rounded-lg font-medium transition-colors"
                 >
-                  Continue Adding Course
+                  Continue Adding Courses
                 </button>
               </div>
             </div>
