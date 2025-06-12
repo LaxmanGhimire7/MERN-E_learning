@@ -55,6 +55,27 @@ A **full-stack e‑learning web application** built with the MERN stack (MongoDB
 
 ## 🚀 Getting Started
 
+## 🖼️ Screenshots
+
+Home Page
+![image](https://github.com/user-attachments/assets/3036f302-8993-41e5-b499-07ac9517554a)
+
+All Courses
+![image](https://github.com/user-attachments/assets/9885bd11-76d7-4068-8343-cc4aea10a8ba)
+
+About Us
+![image](https://github.com/user-attachments/assets/7799f3d3-556e-41e8-aae8-808af66078c0)
+
+Contact
+![image](https://github.com/user-attachments/assets/0a84eef4-b3b9-4b10-b2a4-226b84a89eb6)
+
+Cart
+![image](https://github.com/user-attachments/assets/508163c7-0941-412b-9ed2-c55d62defa54)
+
+Edit Profile
+![image](https://github.com/user-attachments/assets/4916ea4d-2fb6-4d22-b066-f404b7bb0111)
+
+
 ### Prerequisites
 
 * [Node.js](https://nodejs.org) (v14+)
@@ -153,23 +174,6 @@ Database: mongodb://localhost:27017/LaxmanSipalaya
 * Frontend: `npm test` in `/frontend` (React Testing Library)
 
 ---
-
-## 🖼️ Screenshots
-
-![image](https://github.com/user-attachments/assets/f43b14d2-4fa1-43c3-a6b2-c5a4321b7de8)
-
-![image](https://github.com/user-attachments/assets/f7879f6b-7d8a-435f-9a42-b9e5380f5ef2)
-
-![image](https://github.com/user-attachments/assets/606bf902-27e3-498d-8c2d-6ec9115bdd3d)
-
-![image](https://github.com/user-attachments/assets/92fc99ba-3a24-482a-9e25-60f4344378c0)
-
-![image](https://github.com/user-attachments/assets/4ee81094-5fcc-4747-9234-5d9b47f0a2b9)
-
-![image](https://github.com/user-attachments/assets/677b2ff3-6c5b-4ed1-9910-625600433ffd)
-
-
-
 
 ---
 
