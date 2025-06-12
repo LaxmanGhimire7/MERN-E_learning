@@ -142,6 +142,7 @@ Make `.env` files by copying `.env.example` and filling in:
 # backend/.env
 PORT: Port no in which the server is running
 JWT_SECRET=your_jwt_secret
+Database: mongodb://localhost:27017/LaxmanSipalaya
 
 
 ---
