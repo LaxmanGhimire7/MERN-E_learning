@@ -21,7 +21,7 @@ app.use("/api/auth", userRoutes);
 app.use('/image',express.static('public/upload'));
 app.use("/api/course", courseRoutes );
 app.use("/api/contact", contactRoutes);
-// app.use("/api/order",orderRoutes );
+app.use("/api/order",orderRoutes );
 
 
 

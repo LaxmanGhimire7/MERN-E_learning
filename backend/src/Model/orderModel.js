@@ -11,7 +11,7 @@ const orderSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "course",
       required: true,
-      unique: false, // You may check uniqueness in logic to prevent re-purchase
+
     },
     paymentStatus: {
       type: String,
