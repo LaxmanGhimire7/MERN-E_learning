@@ -10,7 +10,7 @@ connectDb();
 const userRoutes = require("./src/Routes/userRoutes.js");
 const courseRoutes = require("./src/Routes/courseRoutes.js");
 const contactRoutes = require("./src/Routes/contactRoute.js")
-const orderRoutes = require("./src/Routes/orderRoute.js");
+const courseOrderRoutes = require("./src/Routes/courseOrderRoutes.js");
 
 // Middleware
 app.use(cors()); // 
@@ -21,7 +21,7 @@ app.use("/api/auth", userRoutes);
 app.use('/image',express.static('public/upload'));
 app.use("/api/course", courseRoutes );
 app.use("/api/contact", contactRoutes);
-app.use("/api/order",orderRoutes );
+app.use("/api/order",courseOrderRoutes );
 
 
 

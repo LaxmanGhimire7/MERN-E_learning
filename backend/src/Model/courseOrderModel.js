@@ -1,18 +1,25 @@
 const mongoose = require("mongoose");
 
-const orderSchema = mongoose.Schema(
+const courseOrderSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,
     },
-    courseId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "course",
-      required: true,
-
-    },
+    course: [
+      {
+        courseId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Course", // This must match the name of my course model
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          default: 1,
+        },
+      },
+    ],
     paymentStatus: {
       type: String,
       enum: ["COMPLETE", "PENDING", "CANCELED", "FULL_REFUND"],
@@ -44,5 +51,5 @@ const orderSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-const Order = mongoose.model("order", orderSchema);
-module.exports = Order;
+const CourseOrder = mongoose.model("CourseOrder", courseOrderSchema);
+module.exports = CourseOrder;
