@@ -30,6 +30,5 @@ backend/.env
 # Ignore uploaded files (e.g., images)
 /public/upload/
 backend/node_modules
-node_modules/
 
 
