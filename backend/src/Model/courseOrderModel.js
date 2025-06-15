@@ -30,11 +30,11 @@ const courseOrderSchema = new mongoose.Schema(
       enum: ["ACTIVE", "EXPIRED", "CANCELED"],
       default: "ACTIVE",
     },
-    paymentMethod: {
-      type: String,
-      enum: ["ESEWA", "KHALTI", "STRIPE", "PAYPAL"],
-      required: true,
-    },
+     paymentMethod: {
+    type: String,
+    enum: ["ESEWA", "KHALTI", "PAYPAL", "STRIPE"], 
+    required: true,
+  },
     invoiceId: {
       type: String,
       default: null,

@@ -1,28 +1,74 @@
-import { useState } from "react"
+import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../Context/AuthProvider";
-import { useContext } from "react";
-
 
 function OrderHistory() {
-  const [order, setOrder] = useState([]);
-  const {state} = useContext(AuthContext);
+  const [orders, setOrders] = useState([]);
+  const { state } = useContext(AuthContext);
 
-  const getUserOrder = async ()=>{
-    let response = await fetch("http://localhost:9000/api/order/getUserOrder",{
-      method:"GET",
-      headers:{
-        Authorization: `Bearer ${state.token}`,
-      },
-    });
-    response = await response.json();
-    console.log(response)
-  }
+  const getUserOrder = async () => {
+    try {
+      let response = await fetch("http://localhost:9000/api/order/getUserOrder", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${state.token}`,
+        },
+      });
+      let data = await response.json();
+      console.log("Order response:", data);
+
+      // If response is an array directly
+      setOrders(data);
+
+      // If response is an object with orderList array:
+      // setOrders(data.orderList);
+    } catch (error) {
+      console.error("Fetch order error:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (state?.token) {
+      getUserOrder();
+    }
+  }, [state?.token]);
+
   return (
     <div>
-     
-      
+      {orders.length > 0 ? (
+        <div>
+          {orders.map((item) => (
+            <div key={item._id} className="shadow-2xl shadow-gray-800 p-5 m-2">
+              <h1>Payment Status: {item.paymentStatus}</h1>
+              {/* I don't see orderStatus in your sample, so you can remove or check */}
+              <h1>Order Status: {item.enrollmentStatus}</h1>
+
+              <div>
+                {item.course && item.course.length > 0 ? (
+                  <div>
+                    {item.course.map((courseItem, index) => (
+                       <div key={index}>
+    <h1>Quantity: {courseItem.quantity || 1}</h1>
+    <h1>Name: {courseItem.productId?.name || "No name"}</h1>
+    <img
+      className="h-12"
+      src={`http://localhost:9000/image/${courseItem.productId?.image}`}
+      alt={courseItem.productId?.name || "course image"}
+    />
+  </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p>No courses in this order</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div>Order not found</div>
+      )}
     </div>
-  )
+  );
 }
 
-export default OrderHistory
+export default OrderHistory;
