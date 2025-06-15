@@ -29,7 +29,6 @@ const getUserOrder = async (req, res) => {
     let orderList = await CourseOrder.find({ userId }).populate("course.courseId");
     console.log("Orders:", orderList);
 
-    // Send the found orders as JSON response
     res.status(200).json(orderList);
   } catch (error) {
     console.error("Error fetching orders:", error);

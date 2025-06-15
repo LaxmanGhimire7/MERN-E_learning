@@ -32,7 +32,7 @@ const courseOrderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["eSewa", "Khalti", "Stripe", "PayPal"],
+      enum: ["ESEWA", "KHALTI", "STRIPE", "PAYPAL"],
       required: true,
     },
     invoiceId: {

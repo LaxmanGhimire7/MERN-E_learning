@@ -15,58 +15,60 @@ import khalti from "../images/Khalti.png";
 import stripe from "../images/stripe.png";
 import paypal from "../images/paypal.png";
 
+
+
 function Cart() {
   const navigate = useNavigate();
   const { state: cartState, dispatch } = useContext(CartContext);
   const { state: authState, user } = useContext(AuthContext);
-
-  const [phone, setPhone] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("eSewa");
+  const [loading, setLoading] = useState(false);
 
   const totalAmount = cartState.cartItems.reduce(
     (acc, item) => acc + item.qty * item.discountPrice,
     0
   );
 
-  const totalItem = cartState.cartItems.reduce(
-    (acc, item) => acc + item.qty,
-    0
-  );
+  const totalItem = cartState.cartItems.reduce((acc, item) => acc + item.qty, 0);
 
   const handleOrder = async () => {
     if (!user?._id || !authState.token) {
-      navigate("/students-login");
       toast.info("Please login to complete your order");
+      navigate("/students-login");
       return;
     }
 
+    if (cartState.cartItems.length === 0) {
+      toast.warn("Your cart is empty");
+      return;
+    }
 
-    const courses = cartState.cartItems.map((item) => ({
+    const course = cartState.cartItems.map((item) => ({
       courseId: item._id,
-      name: item.name,
-      price: item.discountPrice,
+      quantity: item.qty,
     }));
 
-    const payload = {
-
-      courses,
-      totalAmount,
-    };
-
+    setLoading(true);
     try {
-      const res = await fetch("http://localhost:9000/api/order/createOrder", {
+      const res = await fetch("http://localhost:9000/api/order/createCourseOrder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authState.token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          course,
+          paymentMethod,
+          paidAmount: totalAmount,
+        }),
       });
 
       const data = await res.json();
+      console.log(data)
 
       if (!res.ok) {
         toast.error(`Order failed: ${data?.msg || "Unknown error"}`);
+        setLoading(false);
         return;
       }
 
@@ -77,11 +79,13 @@ function Cart() {
         state: {
           totalAmount,
           totalItem,
-          courseId: data?.response?.courses?.[0]?.courseId,
+            courseId: data.order?.course?.[0]?.courseId,
         },
       });
     } catch (err) {
       toast.error(`Order error: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,6 +107,7 @@ function Cart() {
         <button
           onClick={() => navigate("/allCourses")}
           className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6 transition-colors"
+          aria-label="Back to courses"
         >
           <FaArrowLeft /> Back to Courses
         </button>
@@ -134,6 +139,7 @@ function Cart() {
                   <button
                     onClick={handleClearCart}
                     className="text-red-500 hover:text-red-700 flex items-center gap-1 text-sm"
+                    aria-label="Clear Cart"
                   >
                     <FaTrash /> Clear Cart
                   </button>
@@ -146,7 +152,7 @@ function Cart() {
                   >
                     <img
                       src={`http://localhost:9000/image/${item.image}`}
-                      alt={item.name}
+                      alt={`Course thumbnail for ${item.name}`}
                       className="w-full sm:w-40 h-32 object-cover rounded-xl shadow-sm"
                     />
                     <div className="flex-1">
@@ -161,15 +167,19 @@ function Cart() {
                           <button
                             onClick={() =>
                               dispatch({
-                                type: "Decreament",
+                                type: "Decrement", 
                                 payload: { id: item._id },
                               })
                             }
                             className="p-2 text-gray-600 hover:bg-gray-200 rounded-full transition-colors"
+                            aria-label={`Decrease quantity for ${item.name}`}
                           >
                             <FaMinus size={12} />
                           </button>
-                          <span className="font-bold text-lg w-6 text-center">
+                          <span
+                            className="font-bold text-lg w-6 text-center"
+                            aria-live="polite"
+                          >
                             {item.qty}
                           </span>
                           <button
@@ -180,6 +190,7 @@ function Cart() {
                               })
                             }
                             className="p-2 text-gray-600 hover:bg-gray-200 rounded-full transition-colors"
+                            aria-label={`Increase quantity for ${item.name}`}
                           >
                             <FaPlus size={12} />
                           </button>
@@ -192,6 +203,7 @@ function Cart() {
                             })
                           }
                           className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                          aria-label={`Remove ${item.name} from cart`}
                         >
                           <FaTrash size={16} />
                         </button>
@@ -210,7 +222,7 @@ function Cart() {
               </div>
             </div>
 
-            {/* Right - Summary */}
+            
             <div className="w-full lg:w-96">
               <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-6">
                 <h3 className="text-xl font-bold mb-5 pb-3 border-b border-gray-200">
@@ -228,37 +240,50 @@ function Cart() {
                   </div>
                 </div>
 
-                {/* Payment Methods (Display only) */}
+              
                 <div className="mb-6">
-                  <label className="block mb-3 font-medium text-gray-700">
-                    Payment Methods Available
+                  <label
+                    htmlFor="paymentMethod"
+                    className="block mb-3 font-medium text-gray-700"
+                  >
+                    Select Payment Method
                   </label>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-3" id="paymentMethod" role="radiogroup">
                     {paymentMethods.map((item) => (
-                      <div
+                      <button
                         key={item.id}
-                        className="border rounded-lg p-3 flex flex-col items-center bg-gray-50"
+                        onClick={() => setPaymentMethod(item.id)}
+                        className={`border rounded-lg p-3 flex flex-col items-center cursor-pointer ${
+                          paymentMethod === item.id
+                            ? "border-blue-600 bg-blue-100"
+                            : "border-gray-300 bg-gray-50"
+                        }`}
+                        aria-checked={paymentMethod === item.id}
+                        role="radio"
+                        aria-label={`Pay with ${item.name}`}
+                        type="button"
                       >
                         <img
                           src={item.icon}
                           alt={item.name}
                           className="h-8 w-32 object-contain mb-2"
                         />
-                        <span className="text-sm text-gray-700">
-                          {item.name}
-                        </span>
-                      </div>
+                        <span className="text-sm text-gray-700">{item.name}</span>
+                      </button>
                     ))}
                   </div>
-                 
                 </div>
-
 
                 <button
                   onClick={handleOrder}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all mb-4"
+                  disabled={loading || cartState.cartItems.length === 0}
+                  className={`w-full py-3 rounded-lg font-bold shadow-lg transition-all mb-4 ${
+                    loading || cartState.cartItems.length === 0
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white hover:shadow-xl"
+                  }`}
                 >
-                  Place Order
+                  {loading ? "Placing Order..." : "Place Order"}
                 </button>
 
                 <button
