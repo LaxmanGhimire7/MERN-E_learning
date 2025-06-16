@@ -5,10 +5,10 @@ function Payment() {
   const info = useLocation();
   console.log(info.state);
 
-  const { courseId, totalAmount, totalItem } = info.state;
-  let transaction_uuid = `${courseId}_${Date.now()}`;
- 
-  // console.log(transaction_uuid);
+  const { orderId, totalAmount, totalItem } = info.state;
+  let transaction_uuid = orderId; 
+  console.log(transaction_uuid);
+
   let Message = `total_amount=${totalAmount},transaction_uuid=${transaction_uuid},product_code=EPAYTEST`;
   var hash = CryptoJS.HmacSHA256(Message, "8gBm/:&EnhH.1/q");
   var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);

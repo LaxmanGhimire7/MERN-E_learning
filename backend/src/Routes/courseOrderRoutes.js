@@ -6,7 +6,7 @@ const authMiddleware = require("../Middleware/authMiddleware");
 
 router.post("/createCourseOrder", authMiddleware, createCourseOrder);
 router.get("/getUserOrder", authMiddleware, getUserOrder)
-// router.get("/success", success);
-// router.get("/getOrder/:id", getOrder);
+router.get("/success", success);
+router.get("/getOrder/:id", getOrder);
 
 module.exports= router;

@@ -75,13 +75,14 @@ function Cart() {
       toast.success("Order placed successfully!");
       dispatch({ type: "ClearCart" });
 
-      navigate("/payment", {
-        state: {
-          totalAmount,
-          totalItem,
-            courseId: data.order?.course?.[0]?.courseId,
-        },
-      });
+     navigate("/payment", {
+  state: {
+    totalAmount,
+    totalItem,
+    orderId: data.order?._id, // ✅ Use unique MongoDB order _id as transaction_uuid
+  },
+});
+
     } catch (err) {
       toast.error(`Order error: ${err.message}`);
     } finally {
