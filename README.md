@@ -1,7 +1,7 @@
 
 # MERN E‑Learning Platform
 
-A **full-stack e‑learning web application** built with the MERN stack (MongoDB, Express.js, React.js, Node.js). Enables instructors to create courses and students to register, learn, and interact via quizzes and discussions.
+A **full-stack e‑learning web application** built with the MERN stack (MongoDB, Express.js, React.js, Node.js). Enables admin to create, edit, delere courses and students to register, learn, and interact via quizzes and discussions.
 
 ---
 
