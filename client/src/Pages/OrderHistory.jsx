@@ -13,14 +13,9 @@ function OrderHistory() {
           Authorization: `Bearer ${state.token}`,
         },
       });
-      let data = await response.json();
-      console.log("Order response:", data);
-
-      // If response is an array directly
-      setOrders(data);
-
-      // If response is an object with orderList array:
-      // setOrders(data.orderList);
+      response = await response.json();
+      console.log("Order response:", response);
+      setOrders(response);
     } catch (error) {
       console.error("Fetch order error:", error);
     }
@@ -39,7 +34,6 @@ function OrderHistory() {
           {orders.map((item) => (
             <div key={item._id} className="shadow-2xl shadow-gray-800 p-5 m-2">
               <h1>Payment Status: {item.paymentStatus}</h1>
-              {/* I don't see orderStatus in your sample, so you can remove or check */}
               <h1>Order Status: {item.enrollmentStatus}</h1>
 
               <div>
@@ -48,11 +42,11 @@ function OrderHistory() {
                     {item.course.map((courseItem, index) => (
                        <div key={index}>
     <h1>Quantity: {courseItem.quantity || 1}</h1>
-    <h1>Name: {courseItem.productId?.name || "No name"}</h1>
+    <h1>Name: {courseItem.courseId?.name || "No name"}</h1>
     <img
       className="h-12"
-      src={`http://localhost:9000/image/${courseItem.productId?.image}`}
-      alt={courseItem.productId?.name || "course image"}
+      src={`http://localhost:9000/image/${courseItem.courseId?.image}`}
+      alt={courseItem.courseId?.name || "course image"}
     />
   </div>
                     ))}

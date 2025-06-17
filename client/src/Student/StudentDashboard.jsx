@@ -1,9 +1,17 @@
-import React from 'react'
+
+import StudentNavigation from './StudentNavigation'
+import { Outlet } from 'react-router-dom'
 
 function StudentDashboard() {
   return (
     <div>
-      huu
+      <div className='flex'>
+        <StudentNavigation />
+      </div>
+
+      <div>
+        <Outlet />
+      </div>
     </div>
   )
 }

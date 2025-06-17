@@ -1,30 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from "chart.js";
 import { AuthContext } from "../Context/AuthProvider";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend,
-  ArcElement
-);
 
 function AdminHome() {
   const [latestCourses, setLatestCourses] = useState([]);
   const [contacts, setContacts] = useState([]);
-  const [stats, setStats] = useState({ courses: 0, messages: 0, users: 0 });
+
   const { state } = useContext(AuthContext);
+
 
   // Fetch latest courses
   const getCourses = async () => {
@@ -33,7 +17,7 @@ function AdminHome() {
       let data = await res.json();
       const latest = data.response.slice(-5).reverse();
       setLatestCourses(latest);
-      setStats(prev => ({ ...prev, courses: data.response.length }));
+
     } catch (err) {
       console.error(err);
     }
@@ -41,12 +25,14 @@ function AdminHome() {
 
   // Fetch all contact messages
   const getContacts = async () => {
+  
     try {
       let response = await fetch("http://localhost:9000/api/contact/getAllContacts");
       if (!response.ok) throw new Error("Failed to fetch contacts");
       let data = await response.json();
       setContacts(data.response || data.contacts || data || []);
-      setStats(prev => ({ ...prev, messages: data.response?.length || 0 }));
+
+ 
     } catch (error) {
       console.error(error);
       toast.error("Failed to load contact messages");
@@ -64,7 +50,6 @@ function AdminHome() {
       if (!response.ok) throw new Error("Delete failed");
       toast.success("Message deleted successfully");
       setContacts((prev) => prev.filter((contact) => contact._id !== id));
-      setStats(prev => ({ ...prev, messages: prev.messages - 1 }));
     } catch (error) {
       console.error(error);
       toast.error("Failed to delete message");
@@ -74,8 +59,6 @@ function AdminHome() {
   useEffect(() => {
     getCourses();
     getContacts();
-    // Mock user count for demo
-    setStats(prev => ({ ...prev, users: 42 }));
   }, []);
 
   return (
@@ -83,7 +66,7 @@ function AdminHome() {
       {/* Dashboard Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-        <p className="text-gray-600">Welcome back, {state.user?.name || "Admin"}!</p>
+        <p className="text-gray-600">Welcome back, { "Admin"}!</p>
       </div>
 
       {/* Stats Cards */}
@@ -92,7 +75,7 @@ function AdminHome() {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-gray-500">Total Courses</p>
-              <h3 className="text-2xl font-bold">{stats.courses}</h3>
+
             </div>
             <div className="bg-blue-100 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,7 +89,7 @@ function AdminHome() {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-gray-500">Messages</p>
-              <h3 className="text-2xl font-bold">{stats.messages}</h3>
+
             </div>
             <div className="bg-green-100 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -120,7 +103,7 @@ function AdminHome() {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-gray-500">Active Users</p>
-              <h3 className="text-2xl font-bold">{stats.users}</h3>
+
             </div>
             <div className="bg-purple-100 p-3 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
