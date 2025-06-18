@@ -3,7 +3,8 @@ import React from 'react'
 function StudentHome() {
   return (
     <div>
-      StudentHome
+      Home
+      Content Catalog
     </div>
   )
 }
