@@ -5,6 +5,7 @@ function StudentHome() {
     <div>
       Home
       Content Catalog
+      das
     </div>
   )
 }
