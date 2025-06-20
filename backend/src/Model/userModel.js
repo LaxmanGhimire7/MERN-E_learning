@@ -80,6 +80,30 @@ const userSchema = new mongoose.Schema(
         sms: { type: Boolean, default: false },
       },
     },
+
+    enrolledCourses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
+    progress: [
+      {
+        courseId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Course",
+        },
+        percentage: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
+    certificates: [
+      {
+        type: String,
+      },
+    ],
   },
   {
     timestamps: true,

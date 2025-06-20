@@ -4,8 +4,8 @@ import { Outlet } from 'react-router-dom'
 
 function StudentDashboard() {
   return (
-    <div>
-      <div className='flex'>
+    <div className='flex'>
+      <div>
         <StudentNavigation />
       </div>
 

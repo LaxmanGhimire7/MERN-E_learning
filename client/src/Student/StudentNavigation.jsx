@@ -5,7 +5,7 @@ import { AuthContext } from '../Context/AuthProvider'
 
 function StudentNavigation() {
   const {user} = useContext(AuthContext);
-  
+
   return (
     <div>
       <NavLink 
@@ -34,6 +34,8 @@ function StudentNavigation() {
                 </p>
               </div>
             </NavLink>
+
+            <NavLink to="home">Dashboard</NavLink>
 
       <NavLink 
           to="/userProfile"
