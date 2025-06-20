@@ -2,10 +2,16 @@ import React from 'react'
 
 function StudentHome() {
   return (
-    <div>
-      Home
+    <div className=''>
+      <div className='flex'>
+          Home
       Content Catalog
       das
+      das
+      das
+      das
+      </div>
+    
     </div>
   )
 }
