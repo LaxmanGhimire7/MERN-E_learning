@@ -4,24 +4,28 @@ const User = require("../Model/userModel");
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.headers.authorization;
-    // console.log(token)
-    if (!token) {
+
+    // Check token presence and proper format with space after Bearer
+    if (!token || !token.startsWith("Bearer ")) {
       return res.status(401).json({
         status: 401,
-        msg: "Unauthorized access: Token is missing or invalid",
+        msg: "Unauthorized access: Token is missing or malformed",
       });
     }
-    const response = token.split(" ")[1];
-    const decodedToken = jwt.verify(response, process.env.secret_key);
 
-    let data = await User.findOne({ _id: decodedToken.id });
+    const actualToken = token.split(" ")[1];
+    const decodedToken = jwt.verify(actualToken, process.env.secret_key);
 
-    
-    req.user = data;
+    const user = await User.findById(decodedToken.id);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    req.user = user;
     next();
   } catch (error) {
-    res.status(500).json({ msg: "Server error", error: error });
-    console.log("Auth error",error)
+    console.error("Auth error", error.message);
+    return res.status(401).json({ msg: "Invalid or expired token", error: error.message });
   }
 };
 

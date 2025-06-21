@@ -30,13 +30,40 @@ const RegisterForm = () => {
     setConfirmPassword("");
   };
 
+  // Validation function
+  const validate = () => {
+    if (userName.length < 3) {
+      toast.error("Username must be at least 3 characters");
+      return false;
+    }
+    if (userName.length > 30) {
+      toast.error("Username cannot exceed 30 characters");
+      return false;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(userName)) {
+      toast.error("Username can only contain letters, numbers, and underscores");
+      return false;
+    }
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return false;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>_\-\[\]\\\/'`;~+=]/.test(password)) {
+    toast.error("Password must contain at least one special character");
+    return false;
+  }
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match!");
+      return false;
+    }
+    return true;
+  };
+
   const formSubmit = async (e) => {
     e.preventDefault();
-    resetForm();
 
-    if (password !== confirmPassword) {
-      toast.error("Password do not match!");
-      return;
+    if (!validate()) {
+      return; // stop if validation fails
     }
 
     try {
@@ -55,7 +82,7 @@ const RegisterForm = () => {
         }),
       });
 
-      const data = await res.json(); 
+      const data = await res.json();
       console.log(data);
 
       if (!res.ok) {
@@ -80,9 +107,6 @@ const RegisterForm = () => {
           </h2>
           <p className="text-gray-600">Join our community to get started</p>
         </div>
-
-
-
 
         <form onSubmit={formSubmit} className="space-y-6">
           {/* Name Row */}

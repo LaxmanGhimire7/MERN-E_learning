@@ -2,35 +2,57 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthProvider";
 
 function StudentHome() {
-  const {state} = useContext(AuthContext)
+  const { state } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
 
-  useEffect(() => {
+  const getStudentInfo = async () => {
+    try {
+      const res = await fetch("http://localhost:9000/api/student/getStudentDashboard", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${state.token}`,
+        },
+      });
 
-    fetch("http://localhost:9000/api/course/getCourse", {
-      headers: { Authorization: `Bearer ${state.token}` },
-    })
-      .then(res => res.json())
-      .then(data => setCourses(data.courses));
+      if (!res.ok) {
+        console.error("Failed to fetch dashboard", res.status);
+        return;
+      }
+
+      const data = await res.json();
+      setCourses(data.enrolledCourses || []);
+    } catch (err) {
+      console.error("Error fetching student dashboard:", err);
+    }
+  };
+
+  useEffect(() => {
+    getStudentInfo();
   }, []);
 
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">My Dashboard</h2>
       <div className="space-y-4">
-        {courses.map(course => (
-          <div key={course._id} className="p-4 border rounded shadow bg-white">
-            <h3 className="font-semibold text-lg">{course.name}</h3>
-            <p>Progress: {course.progress}%</p>
-            {course.certificateUrl && (
-              <a href={course.certificateUrl} target="_blank" className="text-blue-500 underline">
-                View Certificate
-              </a>
-            )}
-          </div>
-        ))}
+        {courses.length === 0 ? (
+          <p>You are not enrolled in any courses yet.</p>
+        ) : (
+          courses.map((course) => (
+            <div key={course._id} className="p-4 border rounded shadow bg-white">
+              <h3 className="font-semibold text-lg">{course.name}</h3>
+              <p>Progress: {/* You can add progress info if available */} 0%</p>
+              {course.certificateUrl && (
+                <a href={course.certificateUrl} target="_blank" rel="noreferrer" className="text-blue-500 underline">
+                  View Certificate
+                </a>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 }
+
 export default StudentHome;

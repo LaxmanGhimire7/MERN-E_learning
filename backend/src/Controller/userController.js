@@ -135,7 +135,7 @@ const forgotPassword = async (req, res) => {
 const deleteUser = async (req, res) => {
   let { id } = req.params;
   if (!id) {
-    return req.status(400).json({ status: 400, msg: "ID not found" });
+    return res.status(400).json({ status: 400, msg: "ID not found" });
   }
   let response = await user.findByIdAndDelete({ _id: id });
   res.status(200).json({ status: 200, msg: "User is Deleted", response });
