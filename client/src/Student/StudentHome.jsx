@@ -21,6 +21,7 @@ function StudentHome() {
       }
 
       const data = await res.json();
+      console.log(data)
       setCourses(data.enrolledCourses || []);
     } catch (err) {
       console.error("Error fetching student dashboard:", err);
