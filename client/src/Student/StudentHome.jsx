@@ -37,7 +37,7 @@ function StudentHome() {
       <h2 className="text-xl font-bold mb-4">My Dashboard</h2>
       <div className="space-y-4">
         {courses.length === 0 ? (
-          <p>You are not enrolled in any courses yet.</p>
+          <p>You are not enrolled in any courses yet here.</p>
         ) : (
           courses.map((course) => (
             <div key={course._id} className="p-4 border rounded shadow bg-white">
