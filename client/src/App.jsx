@@ -28,6 +28,8 @@ import Payment from "./Pages/Payment";
 import OrderHistory from "./Pages/OrderHistory";
 import Contact from "./Pages/Contact";
 import Success from "./Pages/Success";
+import Partnership from "./Pages/Partnership";
+import TeachingMethodologies from "./Pages/TeachingMethodologies";
 
 
 
@@ -46,6 +48,8 @@ function App() {
   <Route path="/userProfile" element={<UserProfile />} />
   <Route path="/cart" element={<Cart />} />
   <Route path="/payment" element={<Payment />} />
+  <Route path="/partnership" element={<Partnership />} />
+  <Route path="/teachingMethodologies" element={<TeachingMethodologies />} />
   <Route path="/OrderHistory" element={<OrderHistory />} />
   <Route path="/Contact" element={<Contact />} />
   <Route path="/students-login" element={<Login />} />

@@ -175,7 +175,7 @@ function AdminHome() {
               </div>
             ) : (
               <ul className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                {contacts.map(({ _id, fullName, email, course, message }) => (
+                {contacts.map(({ _id, fullName, email, course, message, phone }) => (
                   <li
                     key={_id}
                     className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
@@ -184,6 +184,7 @@ function AdminHome() {
                       <div>
                         <h4 className="font-medium text-gray-900">{fullName}</h4>
                         <p className="text-sm text-gray-600">{email}</p>
+                        <p className="text-sm text-gray-600">Number:{phone}</p>
                       </div>
                       <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
                         {course || "General Inquiry"}

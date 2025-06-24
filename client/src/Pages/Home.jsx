@@ -22,6 +22,8 @@ import elearning from "../images/elearning.png";
 import tutoring from "../images/tutoring.png";
 import { HiUserGroup } from "react-icons/hi";
 import { MdVerified } from "react-icons/md";
+import Partnership from "./Partnership";
+import TeachingMethodologies from "./TeachingMethodologies";
 
 function Home() {
   const navigate = useNavigate();
@@ -440,6 +442,16 @@ function Home() {
             </div>
           </div>
         </div>
+
+          <div>
+          <TeachingMethodologies />
+        </div>
+
+        <div>
+          <Partnership />
+        </div>
+
+      
 
         {/* This is for fotter */}
 

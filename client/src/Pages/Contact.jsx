@@ -3,51 +3,55 @@ import { useState } from "react";
 import contact from "../images/contact.png";
 import Footer from "./Footer";
 
-
 function Contact() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [course, setCourse] = useState("");
   const [message, setMessage] = useState("");
 
   const createContact = async (e) => {
     e.preventDefault();
-    if (!fullName || !email || !message || !course) {
-  toast.info("All fields are required");
-  return;
-}
+    if (!fullName || !email || !message || !course || !phone) {
+      toast.info("All fields are required");
+      return;
+    }
 
-   try {
-  let response = await fetch("http://localhost:9000/api/contact/createContact", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      fullName,
-      email,
-      course,
-      message,
-    }),
-  });
+    try {
+      let response = await fetch(
+        "http://localhost:9000/api/contact/createContact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fullName,
+            email,
+            phone,
+            course,
+            message,
+          }),
+        }
+      );
 
-  if (!response.ok) {
-    toast.error("Something went wrong!");
-    return;
-  }
+      if (!response.ok) {
+        toast.error("Something went wrong!");
+        return;
+      }
 
-  const data = await response.json();
-  console.log(data);
-  alert("Message sent successfully!");
+      const data = await response.json();
+      console.log(data);
+      alert("Message sent successfully!");
 
-  setFullName("");
-  setEmail("");
-  setCourse("");
-  setMessage("");
-} catch (error) {
-  toast.error("Error: " + error.msg);
-}
-
+      setFullName("");
+      setEmail("");
+      setPhone("");
+      setCourse("");
+      setMessage("");
+    } catch (error) {
+      toast.error("Error: " + error.msg);
+    }
   };
 
   return (
@@ -115,10 +119,31 @@ function Contact() {
                   id="name"
                   required
                   value={fullName}
-                  onChange={(e)=>{
-                    setFullName(e.target.value)
+                  onChange={(e) => {
+                    setFullName(e.target.value);
                   }}
                   placeholder="Your Name"
+                  className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="block font-medium text-gray-700"
+                >
+                  Phone<span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  id="phone"
+                  required
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                  }}
+                  placeholder="Your Phone"
                   className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -135,8 +160,8 @@ function Contact() {
                   id="email"
                   required
                   value={email}
-                  onChange={(e)=>{
-                    setEmail(e.target.value)
+                  onChange={(e) => {
+                    setEmail(e.target.value);
                   }}
                   placeholder="Your Email"
                   className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -153,8 +178,8 @@ function Contact() {
                 <input
                   id="course"
                   value={course}
-                  onChange={(e)=>{
-                    setCourse(e.target.value)
+                  onChange={(e) => {
+                    setCourse(e.target.value);
                   }}
                   required
                   className="w-full border border-gray-300 rounded-md p-3 mt-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -173,8 +198,8 @@ function Contact() {
                   id="message"
                   required
                   value={message}
-                  onChange={(e)=>{
-                    setMessage(e.target.value)
+                  onChange={(e) => {
+                    setMessage(e.target.value);
                   }}
                   rows="4"
                   placeholder="Write your message here..."

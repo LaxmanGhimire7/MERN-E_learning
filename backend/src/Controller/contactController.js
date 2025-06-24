@@ -1,14 +1,14 @@
 const Contact = require("../Model/contactModel");
 
 const createContact = async (req, res) => {
-  const { fullName, email, course, message } = req.body;
+  const { fullName, email, course, message, phone } = req.body;
 
-  if (!fullName || !email || !course || !message) {
+  if (!fullName || !email || !course || !message || !phone) {
     return res.status(400).json({ msg: "All fields are required" });
   }
 
   try {
-    let response = await new Contact({ fullName, email, course, message });
+    let response = await new Contact({ fullName, email, course, message, phone });
     response = await response.save();
     console.log(response);
     res.status(201).json({
