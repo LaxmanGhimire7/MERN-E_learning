@@ -215,125 +215,97 @@ function Home() {
 
 
         {/* Calling the course */}
-        <div className="py-3">
-          <h1 className="font-semibold text-2xl text-center font-serif">
-            Our Featured Course
-          </h1>
-          <div className="flex flex-wrap gap-12 justify-center mt-10">
-            {course.slice(0, 6).map((item) => {
-              return (
-                <div
-                  key={item._id}
-                  onClick={() =>
-                    navigate("/CourseDetails", { state: { ...item } })
-                  }
-                  className=" w-[400px] bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden transform hover:-translate-y-2"
-                >
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={`http://localhost:9000/image/${item.image}`}
-                      alt={item.name}
-                      className="w-full h-48 object-cover transform group-hover:scale-105 transition duration-300"
-                    />
-                    <div className="absolute top-3 right-3 flex gap-2">
-                      {item.isBestseller && (
-                        <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm uppercase tracking-wide">
-                          Bestseller
-                        </span>
-                      )}
-                      {item.isFeatured && (
-                        <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm uppercase tracking-wide">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                  </div>
+       <div className="py-10">
+  <h1 className="font-semibold text-2xl text-center font-serif text-blue-900">
+    Featured Courses
+  </h1>
 
-                  <div className="p-6 flex flex-col gap-4">
-                    <div>
-                      <h2 className="text-xl font-extrabold h-14 flex text-gray-800 ">
-                        {item.name}
-                      </h2>
-                      <p className="text-sm text-gray-600 mt-3 font-medium">
-                        By {item.instructor}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="flex text-amber-400">
-                        {Array.from({ length: 5 }, (_, i) => {
-                          const r = item.rating;
-                          if (r >= i + 1)
-                            return <FaStar key={i} className="w-5 h-5" />;
-                          else if (r >= i + 0.5)
-                            return (
-                              <FaStarHalfAlt key={i} className="w-5 h-5" />
-                            );
-                          else
-                            return (
-                              <FaRegStar
-                                key={i}
-                                className="w-5 h-5 text-gray-200"
-                              />
-                            );
-                        })}
-                      </div>
-                      <span className="text-sm font-medium text-gray-500">
-                        ({item.rating})
-                      </span>
-                    </div>
-
-                    <div className="flex items-baseline gap-3">
-                      {item.discountPrice < item.price && (
-                        <span className="text-sm text-gray-400 line-through">
-                          ₹{item.price}
-                        </span>
-                      )}
-                      <span className="text-2xl font-medium  bg-clip-text text-orange-600">
-                        Rs.{item.discountPrice}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full font-semibold">
-                        ⏳ {item.duration} months
-                      </span>
-                    </div>
-
-                    <div className="flex gap-3 mt-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate("/allCourses");
-                        }}
-                        className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
-                      >
-                        Enroll Now
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate("/cart");
-                        }}
-                        className="aspect-square p-3 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-lg transition-all flex items-center justify-center hover:border-blue-700 hover:text-blue-700"
-                      >
-                        <FaShoppingCart className="w-6 h-6" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={() => navigate("/allCourses")}
-              className="bg-gradient-to-r from-blue-600 to-blue-950 text-white rounded-full px-6 py-3 text-sm font-medium hover:scale-105 transition-transform"
-            >
-              Explore All Courses
-            </button>
+  <div className="flex flex-wrap justify-center gap-12 mt-8 p-4">
+    {course.slice(0, 8).map((item) => (
+      <div
+        key={item._id}
+        onClick={() => navigate("/CourseDetails", { state: { ...item } })}
+        className="w-[280px] bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 cursor-pointer group overflow-hidden transform hover:-translate-y-1"
+      >
+        {/* Course Image */}
+        <div className="relative">
+          <img
+            src={`http://localhost:9000/image/${item.image}`}
+            alt={item.name}
+            className="w-full h-40 object-cover group-hover:scale-105 transition duration-300"
+          />
+          <div className="absolute top-2 right-2 flex gap-1">
+            {item.isBestseller && (
+              <span className="bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
+                Bestseller
+              </span>
+            )}
+            {item.isFeatured && (
+              <span className="bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
+                Featured
+              </span>
+            )}
           </div>
         </div>
+
+        {/* Course Info */}
+        <div className="p-4 space-y-2">
+          <h2 className="text-md font-bold text-gray-800 line-clamp-2 h-12">
+            {item.name}
+          </h2>
+
+          {/* Rating */}
+          <div className="flex items-center text-amber-400 text-sm">
+            {Array.from({ length: 5 }, (_, i) => {
+              const r = item.rating;
+              if (r >= i + 1)
+                return <FaStar key={i} className="w-4 h-4" />;
+              else if (r >= i + 0.5)
+                return <FaStarHalfAlt key={i} className="w-4 h-4" />;
+              else
+                return <FaRegStar key={i} className="w-4 h-4 text-gray-200" />;
+            })}
+            <span className="ml-1 text-gray-500">({item.rating})</span>
+          </div>
+
+          {/* Price */}
+          <div className="flex items-center gap-2">
+            {item.discountPrice < item.price && (
+              <span className="text-xs text-gray-400 line-through">
+                ₹{item.price}
+              </span>
+            )}
+            <span className="text-lg font-semibold text-orange-600">
+              ₹{item.discountPrice}
+            </span>
+          </div>
+
+          {/* Enroll Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/allCourses");
+            }}
+            className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded-md transition"
+          >
+            Enroll Now
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* View All */}
+  <div className="flex justify-center mt-6">
+    <button
+      onClick={() => navigate("/allCourses")}
+      className="bg-gradient-to-r from-blue-600 to-blue-900 text-white px-5 py-2 text-sm rounded-full hover:scale-105 transition"
+    >
+      View All Courses
+    </button>
+  </div>
+</div>
+
 
         {/* This is for another section */}
 
