@@ -21,7 +21,6 @@ function StudentHome() {
       }
 
       const data = await res.json();
-      console.log(data)
       setCourses(data.enrolledCourses || []);
     } catch (err) {
       console.error("Error fetching student dashboard:", err);
@@ -33,25 +32,52 @@ function StudentHome() {
   }, []);
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">My Dashboard</h2>
-      <div className="space-y-4 flex gap-5 flex-wrap w-72">
-        {courses.length === 0 ? (
-          <p>You are not enrolled in any courses yet here.</p>
-        ) : (
-          courses.map((course) => (
-            <div key={course._id} className="p-4 border rounded shadow bg-white">
-              <h3 className="font-semibold text-lg">{course.name}</h3>
-              <p>Progress: { course.progress}%</p>
+    <div className="px-6 py-10 bg-gray-50 min-h-screen">
+      <h2 className="text-3xl font-bold text-blue-900 mb-8 text-center">
+        👋 Welcome to Your Student Dashboard
+      </h2>
+
+      {courses.length === 0 ? (
+        <div className="text-center bg-white p-6 rounded-lg shadow-md text-gray-600 max-w-md mx-auto">
+          <p className="text-lg font-medium">You are not enrolled in any courses yet.</p>
+          <p className="text-sm mt-2">Explore available courses and start learning today!</p>
+        </div>
+      ) : (
+        <div className="flex flex-wrap justify-center gap-6">
+          {courses.map((course) => (
+            <div
+              key={course._id}
+              className="w-[280px] bg-white rounded-xl shadow-md hover:shadow-lg transition p-5 flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="text-lg font-semibold text-blue-800 mb-2 line-clamp-2">
+                  {course.name}
+                </h3>
+                <p className="text-sm text-gray-600 mb-3">Progress: {course.progress}%</p>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full"
+                    style={{ width: `${course.progress}%` }}
+                  ></div>
+                </div>
+              </div>
+
               {course.certificateUrl && (
-                <a href={course.certificateUrl} target="_blank" rel="noreferrer" className="text-blue-500 underline">
-                  View Certificate
+                <a
+                  href={course.certificateUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-auto inline-block text-center bg-green-500 hover:bg-green-600 text-white text-sm py-2 px-4 rounded transition"
+                >
+                  🎓 View Certificate
                 </a>
               )}
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
