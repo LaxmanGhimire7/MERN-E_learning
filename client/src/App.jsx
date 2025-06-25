@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
 import Navigation from "./NavBar/Navigation";
 import AboutUs from "./Pages/AboutUs";
-import ChoosingSipalaya from "./Pages/ChoosingSipalaya";
 import Footer from "./Pages/Footer";
 import Header from "./Pages/Header";
 import Login from "./Pages/Login";
@@ -57,7 +56,6 @@ function App() {
    <Route path="/CourseDetails/" element={<CourseDetails />} />
   <Route path="/registration" element={<Registration />} />
   <Route path="/success/:id" element={<Success />} />
-  <Route path="/choosingSipalaya" element={<ChoosingSipalaya />} />
   <Route path="/footer" element={<Footer />} />
   <Route path="/termsAndConditions" element={<TermsAndConditions />} />
  

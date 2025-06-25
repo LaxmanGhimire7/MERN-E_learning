@@ -36,13 +36,13 @@ function Partnership() {
 
         <h1 className="text-xl text-blue-900">We've been trusted by more than 200+ corporate clients such as:</h1>
       {/* Image container */}
-      <div className="flex space-x-7 mt-5 ">
+      <div className="flex space-x-9 mt-5  ">
         {visibleImages.map((src, idx) => (
           <img
             key={idx}
             src={src}
             alt="images"
-            className="w-60 h-28 object-contain border-2 mt-6 border-gray-50  "
+            className="w-60 h-32 object-contain border-2 mt-6 border-gray-50 rounded-2xl "
           />
         ))}
       </div>

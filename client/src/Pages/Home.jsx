@@ -14,7 +14,6 @@ import {
   FaUserGraduate,
 } from "react-icons/fa";
 import { FaGraduationCap } from "react-icons/fa6";
-import ChoosingSipalaya from "./ChoosingSipalaya";
 import Footer from "./Footer";
 import { useNavigate } from "react-router-dom";
 import {  useEffect, useState } from "react";
@@ -213,8 +212,7 @@ function Home() {
           </div>
         </div>
 
-        {/*  */}
-        <ChoosingSipalaya />
+
 
         {/* Calling the course */}
         <div className="py-3">
