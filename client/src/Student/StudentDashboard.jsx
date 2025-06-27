@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom'
 function StudentDashboard() {
   return (
     <div className='flex  '>
-      <div className='w-[200px]'>
+      <div className='w-[400px]'>
         <StudentNavigation />
       </div>
 
