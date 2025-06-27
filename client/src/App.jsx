@@ -41,7 +41,7 @@ function App() {
       <Header />
       <Navigation />
       <Routes>
-  {/* Public Routes */}
+
   <Route path="/" element={<Home />} />
   <Route path="/aboutus" element={<AboutUs />} />
   <Route path="/allCourses" element={<AllCourses />} />
@@ -60,7 +60,7 @@ function App() {
   <Route path="/termsAndConditions" element={<TermsAndConditions />} />
  
 
-  {/* Admin Protected Routes */}
+  {/* Admin  */}
   <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
     <Route path="/dashboard" element={<Dashboard />}>
       <Route index element={<AdminHome />} />
@@ -73,14 +73,17 @@ function App() {
     </Route>
   </Route>
 
-  {/* Instructor Protected Routes */}
+  {/* Instructor  */}
   <Route element={<ProtectedRoute allowedRoles={['instructor', 'admin']} />}>
     <Route path="/instructor-dashboard" element={<InstructorDashboard />}>
-      <Route index element={<InstructorHome/>} />
+    <Route index element={<InstructorHome/>} />
+    <Route path="course/addCourse" element={<AddCourse />} />
+      <Route path="course/editCourse" element={<EditCourse />} />
+      <Route path="course/AddCourseDetails" element={<AddCourseDetails />} />
     </Route>
   </Route>
 
-  {/* Student Protected Routes */}
+  {/* Student  */}
   <Route element={<ProtectedRoute allowedRoles={['student', 'admin', 'instructor']} />}>
     <Route path="/student-dashboard" element={<StudentDashboard />}>
       <Route index element={<StudentHome />} />
@@ -89,8 +92,7 @@ function App() {
   </Route>
 </Routes>
 
-
-      
+    
     </div>
   );
 }

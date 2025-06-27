@@ -1,21 +1,21 @@
 const CourseOrder = require("../Model/courseOrderModel");
-const User = require("../Model/userModel"); // make sure to import this
+const User = require("../Model/userModel"); 
 
 const getStudentDashboard = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Step 1: Fetch user progress data
+    //  Fetch user progress data
     const user = await User.findById(userId);
 
-    // Step 2: Get all ACTIVE + COMPLETE course orders
+    // Yeta chai active rw complete course leko hoo
     const orders = await CourseOrder.find({
       userId,
       paymentStatus: "COMPLETE",
       enrollmentStatus: "ACTIVE",
     }).populate("course.courseId");
 
-    // Step 3: Extract enrolled courses
+    //enroll gareko course nikaleko yeta
     const enrolledCourses = orders.flatMap(order =>
       order.course.map(c => {
         const courseObj = c.courseId;

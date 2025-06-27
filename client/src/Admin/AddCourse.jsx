@@ -96,7 +96,7 @@ function AddCourse() {
 
       <form onSubmit={formSubmit} className="space-y-6">
         <div className="flex flex-wrap gap-6">
-          {/* Left Column */}
+
           <div className="flex-1 min-w-[300px] space-y-6">
             {/* Course Name */}
             <div className="space-y-2">
@@ -164,7 +164,7 @@ function AddCourse() {
               />
             </div>
 
-            {/* Course Category / Field */}
+            {/* Course Category */}
             <div className="space-y-2">
               <label className="flex items-center text-sm font-medium text-blue-800 gap-2">
                 <TagIcon className="h-5 w-5 text-blue-600" />
@@ -177,7 +177,7 @@ function AddCourse() {
                 className="w-full px-4 py-2 border border-blue-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               >
                 <option>
-                  -- Select Field --
+                  Select Field 
                 </option>
                 {fieldOptions.map((option, index) => (
                   <option key={index} value={option}>
@@ -188,7 +188,7 @@ function AddCourse() {
             </div>
           </div>
 
-          {/* Right Column */}
+         
           <div className="flex-1 min-w-[300px] space-y-6">
             {/* Original Price */}
             <div className="space-y-2">

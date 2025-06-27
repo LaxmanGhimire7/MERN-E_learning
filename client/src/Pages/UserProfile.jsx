@@ -72,9 +72,9 @@ const editUser = async (e) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-8">
-      {/* Profile Card */}
+     
       <div className="mx-auto max-w-4xl bg-white rounded-3xl shadow-2xl p-8 flex items-start gap-8 transform hover:shadow-3xl transition-shadow duration-300">
-        {/* Profile Image */}
+      
         <div className="relative group group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-200 to-purple-200 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <img

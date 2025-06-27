@@ -377,7 +377,7 @@ function Home() {
             </div>
           </div>
 
-          {/* Right Column - Stats 2 */}
+          
           <div className="flex flex-col gap-6">
             <div className="bg-cyan-700 text-white p-6 rounded-2xl w-96 flex items-center justify-between">
               <div>

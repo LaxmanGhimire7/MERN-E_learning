@@ -11,7 +11,7 @@ const courseOrderSchema = new mongoose.Schema(
       {
         courseId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Course", // This must match the name of my course model
+          ref: "Course", // This must match the name of my course model 
           required: true,
         },
         quantity: {

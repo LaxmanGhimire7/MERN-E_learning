@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 function Partnership() {
-  // Array of image URLs
+
   const images = [
     "https://edigitalnepal.com/ca/files/school-logos/1688282175475_81fb8a78-16a6-4b61-8c8e-d8bcb31f5367.png",
     "https://blog.daraz.com.np/wp-content/uploads/2019/02/Daraz-Logo_colorful.png",
@@ -15,9 +15,6 @@ function Partnership() {
     "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Cisco_logo_blue_2016.svg/1200px-Cisco_logo_blue_2016.svg.png",
     "https://cdn.uconnectlabs.com/wp-content/uploads/sites/46/2022/08/Linkedin-Logo-e1660320077673.png",
     "https://www.nepalminute.com/uploads/posts/Nabil%20Logo%201619X145%20logo-21670222542.png"   
-    
-    
- 
   ];
 
   const imagesPerSlide = 4;
@@ -25,7 +22,6 @@ function Partnership() {
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Get images for current slide
   const visibleImages = images.slice(
     currentSlide * imagesPerSlide,
     currentSlide * imagesPerSlide + imagesPerSlide
@@ -35,7 +31,7 @@ function Partnership() {
     <div className="max-w-5xl mx-auto p-4">
 
         <h1 className="text-xl text-blue-900">We've been trusted by more than 200+ corporate clients such as:</h1>
-      {/* Image container */}
+  
       <div className="flex space-x-9 mt-5  ">
         {visibleImages.map((src, idx) => (
           <img
@@ -47,7 +43,7 @@ function Partnership() {
         ))}
       </div>
 
-      {/* Pagination dots */}
+
       <div className="flex justify-center mt-8 space-x-3 ">
         {Array.from({ length: totalSlides }).map((_, idx) => (
           <button
