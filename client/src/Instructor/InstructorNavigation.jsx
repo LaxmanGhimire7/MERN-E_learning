@@ -1,8 +1,12 @@
 import { UserCircleIcon } from 'lucide-react';
+import { useContext } from 'react';
 
 import { NavLink } from 'react-router-dom';
+import { AuthContext } from '../Context/AuthProvider';
 
 function InstructorNavigation() {
+
+  const {user} = useContext(AuthContext);
   return (
     <div>
        <NavLink
