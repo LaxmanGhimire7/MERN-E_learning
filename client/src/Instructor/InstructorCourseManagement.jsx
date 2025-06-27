@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaStar, FaStarHalfAlt, FaRegStar, FaTrash } from "react-icons/fa";
 import { CiEdit } from "react-icons/ci";
+import { AuthContext } from "../Context/AuthProvider";
 
 function InstructorCourseManagement() {
   const [courseList, setCourseList] = useState([]);
+  const {state} = useContext(AuthContext)
   const navigate = useNavigate();
 
   const getCourses = async () => {
     try {
       let response = await fetch("http://localhost:9000/api/course/getInstructorCourses", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Add auth header if needed
+          Authorization: `Bearer ${state.token}`, // Add auth header if needed
         },
       });
       const data = await response.json();
@@ -27,7 +29,7 @@ function InstructorCourseManagement() {
       let response = await fetch(`http://localhost:9000/api/course/deleteCourse/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${state.token}`,
         },
       });
       if (!response.ok) {
