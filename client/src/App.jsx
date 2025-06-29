@@ -31,6 +31,7 @@ import Partnership from "./Pages/Partnership";
 import TeachingMethodologies from "./Pages/TeachingMethodologies";
 import AddTestimonial from "./Student/AddTestimonial";
 import ManageTestimonials from "./Admin/ManageTestimonials";
+import ApprovedTestimonials from "./Pages/ApprovedTestimonials";
 
 
 
@@ -60,6 +61,7 @@ function App() {
   <Route path="/success/:id" element={<Success />} />
   <Route path="/footer" element={<Footer />} />
   <Route path="/termsAndConditions" element={<TermsAndConditions />} />
+  <Route path="/approvedTestimonials" element={<ApprovedTestimonials />} />
  
 
   {/* Admin  */}

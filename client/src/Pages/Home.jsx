@@ -23,6 +23,7 @@ import { HiUserGroup } from "react-icons/hi";
 import { MdVerified } from "react-icons/md";
 import Partnership from "./Partnership";
 import TeachingMethodologies from "./TeachingMethodologies";
+import ApprovedTestimonials from "./ApprovedTestimonials";
 
 function Home() {
   const navigate = useNavigate();
@@ -421,7 +422,11 @@ function Home() {
           <Partnership />
         </div>
 
-      
+      {/* Testimonials ko lagii */}
+      <section className="my-10">
+        <h2 className="text-2xl font-bold mb-4">What Our Students Say</h2>
+        <ApprovedTestimonials />
+      </section>
 
         {/* This is for fotter */}
 

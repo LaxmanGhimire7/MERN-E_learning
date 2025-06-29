@@ -30,6 +30,9 @@ const getAllTestimonials = async (req, res) => {
       .populate("student", "userName firstName lastName")
       .populate("course", "name");
     res.status(200).json({ testimonials });
+
+    // console.log("Fetched testimonials with student data:", testimonials);
+
   } catch (error) {
     res.status(500).json({ msg: "Server error", error: error.message });
   }
