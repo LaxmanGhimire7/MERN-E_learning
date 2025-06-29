@@ -23,41 +23,46 @@ export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const [user, setUser] = useState({});
 
-  const getUser = async () => {
-    // If no token, skip the request and reset user
-    if (!state.token) {
-      setUser({});
-      return;
-    }
+const getUser = async () => {
+  if (!state.token) {
+    setUser({});
+    return;
+  }
 
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${state.token}`,
-    };
+  try {
+    const response = await fetch("http://localhost:9000/api/auth/getUser", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${state.token}`,
+      },
+    });
 
-    try {
-      let response = await fetch("http://localhost:9000/api/auth/getUser", {
-        method: "GET",
-        headers,
-      });
-
+    if (!response.ok) {
       if (response.status === 401) {
         const errorData = await response.json();
         if (errorData.msg === "Session expired. Please login again.") {
           dispatch({ type: "LOGOUT" });
-          setUser({});
-          return;
         }
       }
-
-      const data = await response.json();
-      setUser(data.user);
-    } catch (error) {
-      // Handle fetch or unexpected errors
-      console.error("Error fetching user data:", error);
       setUser({});
+      return;
     }
-  };
+
+    const data = await response.json();
+    
+    // ✅ Store token with user
+    setUser({
+      ...data.user,
+      token: state.token,
+    });
+
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    setUser({});
+  }
+};
+
 
   useEffect(() => {
     getUser();

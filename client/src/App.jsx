@@ -30,6 +30,7 @@ import Success from "./Pages/Success";
 import Partnership from "./Pages/Partnership";
 import TeachingMethodologies from "./Pages/TeachingMethodologies";
 import AddTestimonial from "./Student/AddTestimonial";
+import ManageTestimonials from "./Admin/ManageTestimonials";
 
 
 
@@ -71,6 +72,7 @@ function App() {
       <Route path="course/addCourse" element={<AddCourse />} />
       <Route path="course/editCourse" element={<EditCourse />} />
       <Route path="course/AddCourseDetails/:courseId" element={<AddCourseDetails />} />
+      <Route path="manageTestimonials" element={<ManageTestimonials />} />
 
     </Route>
   </Route>

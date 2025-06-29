@@ -12,13 +12,24 @@ const addTestimonial = async (req, res) => {
     }
 
     const testimonial = await Testimonial.create({
-      student,
+      student: req.user._id,
       course,
       message,
       image,
     });
 
     res.status(201).json({ msg: "Testimonial submitted", testimonial });
+  } catch (error) {
+    res.status(500).json({ msg: "Server error", error: error.message });
+  }
+};
+
+const getAllTestimonials = async (req, res) => {
+  try {
+    const testimonials = await Testimonial.find({})
+      .populate("student", "userName firstName lastName")
+      .populate("course", "name");
+    res.status(200).json({ testimonials });
   } catch (error) {
     res.status(500).json({ msg: "Server error", error: error.message });
   }
@@ -63,4 +74,4 @@ const deleteTestimonial = async (req, res) => {
   }
 };
 
-module.exports = { addTestimonial, getApprovedTestimonials, approveTestimonial, deleteTestimonial };
+module.exports = { addTestimonial,getAllTestimonials, getApprovedTestimonials, approveTestimonial, deleteTestimonial };

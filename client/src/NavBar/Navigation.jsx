@@ -4,10 +4,16 @@ import { FaUserCircle } from "react-icons/fa";
 import { HiLogout } from "react-icons/hi";
 import { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../Context/AuthProvider";
+import { CartContext } from "../Context/CartProvider";
 
 function Navigation() {
   const navigate = useNavigate();
   const { user, dispatch } = useContext(AuthContext);
+  const {state} = useContext(CartContext)
+
+   const totalItem = state.cartItems.reduce((acc, item) => {
+    return acc + item.qty;
+  }, 0)
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -65,8 +71,9 @@ function Navigation() {
       </div>
 
       <div className="flex items-center gap-6 mr-9 cursor-pointer relative" ref={dropdownRef}>
-        <NavLink to="/cart">
-          <FaCartShopping size={20} />
+        
+        <NavLink className="hover:scale-110 text-white text-2xl relative right-6 " to="/cart">
+          <FaCartShopping size={20} /><span className="absolute -top-4 text-sm left-4">{totalItem}</span>
         </NavLink>
 
         {/* User Profile dropdown */}

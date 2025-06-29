@@ -40,7 +40,7 @@ function AddTestimonial() {
       return toast.error("Please fill all required fields");
     }
 
-    const token = state?.user?.token; 
+    const token = user?.token; 
 
     const body = new FormData();
     body.append("course", formData.course);
