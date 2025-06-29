@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaPlus } from "react-icons/fa";
 
 function AddCourseDetails() {
   const { courseId } = useParams();
@@ -16,12 +16,22 @@ function AddCourseDetails() {
       section1Points: [""],
       section2Title: "",
       section2Points: [""],
+      section3Title: "",
+      section3Points: [""],
+      section4Title: "",
+      section4Points: [""],
     },
+    language: "",
+    period: "",
+    categories: "",
+    tagline: "",
   });
 
   const [expandedSections, setExpandedSections] = useState({
     section1: true,
-    section2: false,
+    section2: true,
+    section3: false,
+    section4: false,
   });
 
   const toggleSection = (section) => {
@@ -32,7 +42,7 @@ function AddCourseDetails() {
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
 
     if (name.startsWith("whatYouWillLearn.")) {
       const key = name.split(".")[1];
@@ -43,8 +53,6 @@ function AddCourseDetails() {
           [key]: value,
         },
       }));
-    } else if (type === "checkbox") {
-      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -94,7 +102,9 @@ function AddCourseDetails() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Prepare FormData for submission, stringify arrays/objects as needed
     const finalData = new FormData();
+
     for (const key in formData) {
       if (key === "requirement" || key === "whatYouWillLearn") {
         finalData.append(key, JSON.stringify(formData[key]));
@@ -104,16 +114,19 @@ function AddCourseDetails() {
     }
 
     try {
-      const res = await fetch(`http://localhost:9000/api/course/editCourseDetails/${courseId}`, {
-        method: "PUT",
-        body: finalData,
-      });
+      const res = await fetch(
+        `http://localhost:9000/api/course/editCourseDetails/${courseId}`,
+        {
+          method: "PUT",
+          body: finalData,
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
-        toast.success("Course details added successfully!");
+        toast.success("Course details updated successfully!");
       } else {
-        toast.error(data.msg || "Something went wrong");
+        toast.error(data.message || "Something went wrong");
       }
     } catch (err) {
       toast.error("Error while submitting");
@@ -123,147 +136,166 @@ function AddCourseDetails() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md space-y-6 mt-8 mb-12"
+      className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md space-y-6 mt-10 mb-12"
     >
-      <h2 className="text-2xl font-bold text-blue-600 mb-4">
-        Add Details for Course ID: {courseId}
+      <h2 className="text-2xl font-bold text-blue-600 mb-6">
+        Add / Edit Extra Details for Course ID: {courseId}
       </h2>
 
-      {/* Overview, Demands, Opportunities */}
+      {/* Tagline */}
+      <input
+        type="text"
+        name="tagline"
+        value={formData.tagline}
+        onChange={handleChange}
+        placeholder="Course Tagline"
+        className="w-full px-4 py-2 border rounded"
+      />
+
+      {/* Overview */}
       <textarea
         name="overview"
         value={formData.overview}
         onChange={handleChange}
         placeholder="Course Overview"
-        className="w-full px-4 py-2 border rounded mb-3"
+        className="w-full px-4 py-2 border rounded"
       />
+
+      {/* Demands & Scopes */}
       <textarea
         name="demandsAndScopes"
         value={formData.demandsAndScopes}
         onChange={handleChange}
-        placeholder="Demands & Scopes"
-        className="w-full px-4 py-2 border rounded mb-3"
+        placeholder="Industry Demands & Scope"
+        className="w-full px-4 py-2 border rounded"
       />
+
+      {/* Opportunities */}
       <textarea
         name="opportunities"
         value={formData.opportunities}
         onChange={handleChange}
-        placeholder="Opportunities"
-        className="w-full px-4 py-2 border rounded mb-3"
+        placeholder="Career Opportunities"
+        className="w-full px-4 py-2 border rounded"
       />
 
       {/* Requirements */}
-      <h3 className="text-lg font-semibold">Requirements</h3>
-      {formData.requirement.map((item, idx) => (
-        <input
-          key={idx}
-          type="text"
-          value={item}
-          onChange={(e) => handleArrayChange(e, idx, "requirement")}
-          className="w-full px-4 py-2 border rounded mb-2"
-        />
-      ))}
-      <button
-        type="button"
-        onClick={() => handleAddInput("requirement")}
-        className="text-sm text-blue-600 mb-3 underline"
+      <div>
+        <h3 className="text-lg font-semibold mt-6 mb-2">Requirements</h3>
+        {formData.requirement.map((item, idx) => (
+          <input
+            key={idx}
+            type="text"
+            value={item}
+            onChange={(e) => handleArrayChange(e, idx, "requirement")}
+            className="w-full px-4 py-2 border rounded mb-2"
+            placeholder={`Requirement ${idx + 1}`}
+          />
+        ))}
+        <button
+          type="button"
+          onClick={() => handleAddInput("requirement")}
+          className="text-blue-600 text-sm font-medium flex items-center gap-1"
+        >
+          <FaPlus /> Add More
+        </button>
+      </div>
+
+      {/* What You Will Learn Sections */}
+      <div className="mt-8">
+        <h3 className="text-xl font-bold text-blue-700 mb-4">What You Will Learn</h3>
+
+        {["section1", "section2", "section3", "section4"].map((sectionKey, idx) => (
+          <div key={sectionKey} className="border rounded mb-6">
+            <button
+              type="button"
+              className="w-full flex items-center justify-between px-4 py-2 font-semibold bg-gray-100"
+              onClick={() => toggleSection(sectionKey)}
+            >
+              {formData.whatYouWillLearn[`${sectionKey}Title`] || `Section ${idx + 1}`}
+              {expandedSections[sectionKey] ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+            {expandedSections[sectionKey] && (
+              <div className="p-4 space-y-2">
+                <input
+                  type="text"
+                  name={`whatYouWillLearn.${sectionKey}Title`}
+                  value={formData.whatYouWillLearn[`${sectionKey}Title`]}
+                  onChange={handleChange}
+                  placeholder={`Section ${idx + 1} Title`}
+                  className="w-full px-4 py-2 border rounded"
+                />
+                {formData.whatYouWillLearn[`${sectionKey}Points`].map((point, idx2) => (
+                  <input
+                    key={idx2}
+                    type="text"
+                    value={point}
+                    onChange={(e) =>
+                      handleSectionPointsChange(e, idx2, `${sectionKey}Points`)
+                    }
+                    className="w-full px-4 py-2 border rounded"
+                    placeholder={`Point ${idx2 + 1}`}
+                  />
+                ))}
+                <button
+                  type="button"
+                  onClick={() => handleAddPoint(`${sectionKey}Points`)}
+                  className="text-blue-600 text-sm font-medium flex items-center gap-1"
+                >
+                  <FaPlus /> Add Point
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Language */}
+      <select
+        name="language"
+        value={formData.language}
+        onChange={handleChange}
+        className="w-full px-4 py-2 border rounded"
       >
-        + Add Requirement
-      </button>
+        <option value="">Select Language</option>
+        <option value="English">English</option>
+        <option value="Nepali">Nepali</option>
+     
+        {/* add more languages if needed */}
+      </select>
 
-      {/* What You Will Learn Accordion */}
-      <h3 className="text-xl font-bold mt-6 mb-2 text-blue-700">What You Will Learn</h3>
+      {/* Period */}
+      <select
+        name="period"
+        value={formData.period}
+        onChange={handleChange}
+        className="w-full px-4 py-2 border rounded"
+      >
+        <option value="">Select Period</option>
+        <option value="Short-term">Short-term</option>
+        <option value="Long-term">Long-term</option>
+      </select>
 
-      {/* Section 1 */}
-      <div className="border rounded mb-4">
-        <button
-          type="button"
-          className="w-full flex items-center justify-between px-4 py-2 font-semibold bg-gray-100 hover:bg-gray-200"
-          onClick={() => toggleSection("section1")}
-        >
-          {formData.whatYouWillLearn.section1Title || "Section 1"}
-          {expandedSections.section1 ? <FaChevronUp /> : <FaChevronDown />}
-        </button>
-        {expandedSections.section1 && (
-          <div className="p-4 space-y-2">
-            <input
-              type="text"
-              name="whatYouWillLearn.section1Title"
-              value={formData.whatYouWillLearn.section1Title}
-              onChange={handleChange}
-              placeholder="Section 1 Title"
-              className="w-full px-4 py-2 border rounded"
-            />
-            {formData.whatYouWillLearn.section1Points.map((point, idx) => (
-              <input
-                key={idx}
-                type="text"
-                value={point}
-                onChange={(e) =>
-                  handleSectionPointsChange(e, idx, "section1Points")
-                }
-                className="w-full px-4 py-2 border rounded"
-              />
-            ))}
-            <button
-              type="button"
-              onClick={() => handleAddPoint("section1Points")}
-              className="text-sm text-blue-600 underline"
-            >
-              + Add Point
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Categories */}
+      <select
+        name="categories"
+        value={formData.categories}
+        onChange={handleChange}
+        className="w-full px-4 py-2 border rounded"
+      >
+        <option value="">Select Category</option>
+        <option value="Beginner">Beginner</option>
+        <option value="Intermediate">Intermediate</option>
+        <option value="Advanced">Advanced</option>
+        <option value="Advanced">All Level</option>
+      </select>
 
-      {/* Section 2 */}
-      <div className="border rounded mb-4">
-        <button
-          type="button"
-          className="w-full flex items-center justify-between px-4 py-2 font-semibold bg-gray-100 hover:bg-gray-200"
-          onClick={() => toggleSection("section2")}
-        >
-          {formData.whatYouWillLearn.section2Title || "Section 2"}
-          {expandedSections.section2 ? <FaChevronUp /> : <FaChevronDown />}
-        </button>
-        {expandedSections.section2 && (
-          <div className="p-4 space-y-2">
-            <input
-              type="text"
-              name="whatYouWillLearn.section2Title"
-              value={formData.whatYouWillLearn.section2Title}
-              onChange={handleChange}
-              placeholder="Section 2 Title"
-              className="w-full px-4 py-2 border rounded"
-            />
-            {formData.whatYouWillLearn.section2Points.map((point, idx) => (
-              <input
-                key={idx}
-                type="text"
-                value={point}
-                onChange={(e) =>
-                  handleSectionPointsChange(e, idx, "section2Points")
-                }
-                className="w-full px-4 py-2 border rounded"
-              />
-            ))}
-            <button
-              type="button"
-              onClick={() => handleAddPoint("section2Points")}
-              className="text-sm text-blue-600 underline"
-            >
-              + Add Point
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Submit */}
+      {/* Submit Button */}
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition font-semibold"
       >
-        Submit Course Description
+        Submit Course Details
       </button>
     </form>
   );

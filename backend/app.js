@@ -11,7 +11,8 @@ const userRoutes = require("./src/Routes/userRoutes.js");
 const courseRoutes = require("./src/Routes/courseRoutes.js");
 const contactRoutes = require("./src/Routes/contactRoute.js")
 const courseOrderRoutes = require("./src/Routes/courseOrderRoutes.js");
-const studentRoutes = require("./src/Routes/studentRoutes.js")
+const studentRoutes = require("./src/Routes/studentRoutes.js");
+const testimonialRoutes = require("./src/Routes/testimonialRoutes.js")
 
 // Middleware
 app.use(cors()); // 
@@ -24,6 +25,7 @@ app.use("/api/course", courseRoutes );
 app.use("/api/contact", contactRoutes);
 app.use("/api/order",courseOrderRoutes );
 app.use("/api/student", studentRoutes);
+app.use("/api/testimonial", testimonialRoutes);
 
 
 

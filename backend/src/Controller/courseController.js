@@ -2,18 +2,24 @@ const Course = require("../Model/courseModel");
 
 const createCourse = async (req, res) => {
   try {
-    const image = req.file ? req.file.filename : "default-picture.png";
+    const image = req.file ? req.file.filename : "default-course.jpg";
 
-    // Convert string to boolean if using FormData
     const isBestsellerValue =
       req.body.isBestseller === "true" || req.body.isBestseller === true;
     const isFeaturedValue =
       req.body.isFeatured === "true" || req.body.isFeatured === true;
 
-    const { name, instructor, price, discountPrice, rating, duration } =
-      req.body;
+    const {
+      name,
+      instructor,
+      price,
+      discountPrice,
+      rating,
+      duration,
+      tagline = "",
+      language = "Nepali",
+    } = req.body;
 
-    // Validate required fields
     if (
       !image ||
       !name ||
@@ -30,7 +36,6 @@ const createCourse = async (req, res) => {
         .json({ status: 400, msg: "All fields are required" });
     }
 
-    // Save course
     let response = new Course({
       image,
       name,
@@ -39,6 +44,8 @@ const createCourse = async (req, res) => {
       discountPrice,
       rating,
       duration,
+      tagline,
+      language,
       isBestseller: isBestsellerValue,
       isFeatured: isFeaturedValue,
     });
@@ -64,7 +71,6 @@ const getAllCourse = async (req, res) => {
 
 const deleteCourse = async (req, res) => {
   const courseId = req.params.id;
-  console.log(courseId);
 
   if (!courseId) {
     return res.status(400).json({ status: 400, msg: "Course Id Not Found" });
@@ -99,6 +105,8 @@ const editCourse = async (req, res) => {
       isBestseller,
       isFeatured,
       duration,
+      tagline,
+      language,
     } = req.body;
 
     let updateFields = {
@@ -111,6 +119,8 @@ const editCourse = async (req, res) => {
       isBestseller,
       isFeatured,
       duration,
+      tagline,
+      language,
     };
 
     if (req.file) {
@@ -133,9 +143,6 @@ const editCourse = async (req, res) => {
 const editCourseDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("➡️ EditCourseDetails called");
-    console.log("Params ID:", id);
-    console.log("Raw Body:", req.body);
 
     const {
       categories,
@@ -145,7 +152,6 @@ const editCourseDetails = async (req, res) => {
       opportunities,
     } = req.body;
 
-    // Parse JSON safely
     let requirement = [];
     let whatYouWillLearn = {};
 
@@ -157,7 +163,7 @@ const editCourseDetails = async (req, res) => {
         whatYouWillLearn = JSON.parse(req.body.whatYouWillLearn);
       }
     } catch (parseError) {
-      console.error("❌ JSON parse error:", parseError);
+      console.error("JSON parse error:", parseError);
       return res.status(400).json({ message: "Invalid JSON format" });
     }
 
@@ -185,10 +191,9 @@ const editCourseDetails = async (req, res) => {
       response,
     });
   } catch (error) {
-    console.error("❌ Server error:", error);
+    console.error("Server error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-
-module.exports = { createCourse, getAllCourse, deleteCourse, editCourse, editCourseDetails }
+module.exports = { createCourse, getAllCourse, deleteCourse, editCourse, editCourseDetails };

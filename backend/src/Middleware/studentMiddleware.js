@@ -18,6 +18,7 @@ const allowDashboardAccess = async (req, res, next) => {
       const hasCompletedOrder = await CourseOrder.exists({
         userId: user._id,
         paymentStatus: "COMPLETE",
+        enrollmentStatus: "ACTIVE",
       });
 
       if (!hasCompletedOrder) {

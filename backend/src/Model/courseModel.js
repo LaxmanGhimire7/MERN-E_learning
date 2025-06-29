@@ -13,6 +13,11 @@ const courseSchema = new mongoose.Schema({
     trim: true,
   },
 
+  tagline: {
+    type: String,
+    default: "", 
+  },
+
   rating: {
     type: Number,
     default: 0,
@@ -34,6 +39,7 @@ const courseSchema = new mongoose.Schema({
   duration: {
     type: String,
     default: "Self-paced",
+    // You can store "3 months", "20 hours", etc. as string for flexibility
   },
 
   isBestseller: {
@@ -51,59 +57,73 @@ const courseSchema = new mongoose.Schema({
     default: false,
   },
 
-  categories:{
+  categories: {
     type: String,
     enum: ["Beginner", "Intermediate", "Advanced"],
-    default:"Beginner",
+    default: "Beginner",
   },
 
-  period:{
-    type:String,
-    enum: ["Short-term", "Long-term"]
+  period: {
+    type: String,
+    enum: ["Short-term", "Long-term"],
   },
 
-  requirement:{
-    type:[String],
-    default:[]
+  requirement: {
+    type: [String],
+    default: [],
   },
 
   fields: {
-  type: String,
-  enum: [
-    "Development",
-    "Digital Marketing",
-    "App Development",
-    "Design",
-    "Data Science",
-    "DevOps",
-    "Machine Learning",
-    "Cloud Computing",
-    "Cybersecurity",
-    "QA Testing",
-    "Project Management",
-    "AI"
-  ],
-},
-
+    type: String,
+    enum: [
+      "Development",
+      "Digital Marketing",
+      "App Development",
+      "Design",
+      "Data Science",
+      "DevOps",
+      "Machine Learning",
+      "Cloud Computing",
+      "Cybersecurity",
+      "QA Testing",
+      "Project Management",
+      "AI",
+    ],
+  },
 
   overview: {
     type: String,
   },
+
   demandsAndScopes: {
     type: String,
   },
+
   opportunities: {
     type: String,
   },
+
   whatYouWillLearn: {
     section1Title: String,
     section1Points: [String],
     section2Title: String,
     section2Points: [String],
+    section3Title: String,
+    section3Points: [String],
+    section4Title: String,
+    section4Points: [String],
   },
 
+  // Added new fields for UI needs:
 
-},{
+  language: {
+    type: String,
+    default: "Nepali",
+  },
+
+ 
+
+}, {
   timestamps: true,
   toJSON: {
     virtuals: true,
@@ -111,13 +131,10 @@ const courseSchema = new mongoose.Schema({
     transform: function (doc, ret) {
       ret.id = ret._id;
       return ret;
-    }}}
+    }
+  }
+});
 
-
-
- 
-
-);
 
 const Course = mongoose.model("Course", courseSchema);
 module.exports = Course;

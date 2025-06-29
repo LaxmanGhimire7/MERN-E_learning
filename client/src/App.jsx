@@ -29,6 +29,7 @@ import Contact from "./Pages/Contact";
 import Success from "./Pages/Success";
 import Partnership from "./Pages/Partnership";
 import TeachingMethodologies from "./Pages/TeachingMethodologies";
+import AddTestimonial from "./Student/AddTestimonial";
 
 
 
@@ -89,6 +90,7 @@ function App() {
     <Route path="/student-dashboard" element={<StudentDashboard />}>
       <Route index element={<StudentHome />} />
       <Route path="home" element={<StudentHome/>}/>
+      <Route path="addTestimonial" element={<AddTestimonial />}/>
     </Route>
   </Route>
 </Routes>
