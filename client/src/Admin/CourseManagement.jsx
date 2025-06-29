@@ -18,25 +18,22 @@ function CourseManagement() {
     }
   };
 
-  const deleteCourse =async (id)=>{
-try {
-  let response = await fetch (`http://localhost:9000/api/course/deleteCourse/${id}`,{
-    method:"DELETE",
-  })
-  if(!response.ok){
-    console.log("error")
-    alert("error");
-    return;
+  const deleteCourse = async (id) => {
+    try {
+      let response = await fetch(`http://localhost:9000/api/course/deleteCourse/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        alert("Error deleting course");
+        return;
+      }
+      response = await response.json();
+      toast.success("Course deleted successfully");
+      getCourse();
+    } catch (error) {
+      console.log(error);
+    }
   };
-  response = await response.json();
-  console.log(response);
- toast.success("Course deleted successfully");
-  getCourse();
-
-} catch (error) {
-  console.log(error)
-}
-  }
 
   useEffect(() => {
     getCourse();
@@ -49,13 +46,6 @@ try {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Course Management
           </h1>
-          <NavLink
-            to="AddCourseDetails"
-            className="bg-blue-600 ml-96 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-          >
-            <span>+</span>
-            Add Course Details
-          </NavLink>
 
           <NavLink
             to="addCourse"
@@ -95,7 +85,12 @@ try {
 
                 <div className="p-5 flex flex-col gap-3">
                   <h2 className="text-xl font-bold text-gray-900 h-14">{item.name}</h2>
-                  <p> By <span className="text-black">{item.instructor}</span>  <span>In <span className="cursor-pointer hover:text-blue-800 hover:underline font-semibold text-black">{item.fields}</span></span></p>
+                  <p>
+                    By <span className="text-black">{item.instructor}</span> in{" "}
+                    <span className="cursor-pointer hover:text-blue-800 hover:underline font-semibold text-black">
+                      {item.fields}
+                    </span>
+                  </p>
 
                   <div className="flex items-center gap-2">
                     <div className="flex text-yellow-400">
@@ -122,7 +117,6 @@ try {
 
                   <div className="flex gap-3 mt-2">
                     <button
-                     
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
                     >
                       Enroll Now
@@ -137,6 +131,7 @@ try {
                       <CiEdit className="w-5 h-5" />
                       Edit
                     </button>
+
                     <button
                       onClick={() => deleteCourse(item._id)}
                       className="flex-1 bg-gray-100 hover:bg-red-100 text-red-600 font-medium py-2 rounded-lg transition-all flex items-center justify-center gap-2"
@@ -144,6 +139,14 @@ try {
                       <FaTrash className="w-4 h-4" />
                       Delete
                     </button>
+
+                    <NavLink
+                      to={`/dashboard/course/AddCourseDetails/${item._id}`}
+                      className="flex-1 bg-gray-100 hover:bg-green-100 text-green-700 font-medium  py-2 rounded-lg transition-all flex items-center justify-center gap-2"
+                    >
+                      <span className="text-xl">+</span>
+                      Details
+                    </NavLink>
                   </div>
                 </div>
               </div>

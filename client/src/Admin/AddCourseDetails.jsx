@@ -1,24 +1,67 @@
-import { useContext, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { CartContext } from "../Context/CartProvider";
-import { FaRegStar, FaStar, FaStarHalfAlt } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 function AddCourseDetails() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { dispatch } = useContext(CartContext);
+  const { courseId } = useParams();
 
-  const originalCourse = location.state;
-  const [isEditing, setIsEditing] = useState(false);
-  const [course, setCourse] = useState({ ...originalCourse });
+  const [formData, setFormData] = useState({
+    overview: "",
+    demandsAndScopes: "",
+    opportunities: "",
+    requirement: [""],
+    whatYouWillLearn: {
+      section1Title: "",
+      section1Points: [""],
+      section2Title: "",
+      section2Points: [""],
+    },
+  });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCourse((prev) => ({ ...prev, [name]: value }));
+  const [expandedSections, setExpandedSections] = useState({
+    section1: true,
+    section2: false,
+  });
+
+  const toggleSection = (section) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
-  const handleWhatYouWillLearnChange = (section, index, value) => {
-    setCourse((prev) => {
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (name.startsWith("whatYouWillLearn.")) {
+      const key = name.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        whatYouWillLearn: {
+          ...prev.whatYouWillLearn,
+          [key]: value,
+        },
+      }));
+    } else if (type === "checkbox") {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleArrayChange = (e, index, field) => {
+    const value = e.target.value;
+    setFormData((prev) => {
+      const updated = [...prev[field]];
+      updated[index] = value;
+      return { ...prev, [field]: updated };
+    });
+  };
+
+  const handleSectionPointsChange = (e, index, section) => {
+    const value = e.target.value;
+    setFormData((prev) => {
       const updated = [...prev.whatYouWillLearn[section]];
       updated[index] = value;
       return {
@@ -31,227 +74,198 @@ function AddCourseDetails() {
     });
   };
 
-  const addNewPoint = (section) => {
-    setCourse((prev) => ({
+  const handleAddInput = (field) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: [...prev[field], ""],
+    }));
+  };
+
+  const handleAddPoint = (section) => {
+    setFormData((prev) => ({
       ...prev,
       whatYouWillLearn: {
         ...prev.whatYouWillLearn,
-        [section]: [...(prev.whatYouWillLearn?.[section] || []), ""],
+        [section]: [...prev.whatYouWillLearn[section], ""],
       },
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated Course:", course);
-    // Add API call here to update course in DB if needed
-    setIsEditing(false);
+
+    const finalData = new FormData();
+    for (const key in formData) {
+      if (key === "requirement" || key === "whatYouWillLearn") {
+        finalData.append(key, JSON.stringify(formData[key]));
+      } else {
+        finalData.append(key, formData[key]);
+      }
+    }
+
+    try {
+      const res = await fetch(`http://localhost:9000/api/course/editCourseDetails/${courseId}`, {
+        method: "PUT",
+        body: finalData,
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Course details added successfully!");
+      } else {
+        toast.error(data.msg || "Something went wrong");
+      }
+    } catch (err) {
+      toast.error("Error while submitting");
+    }
   };
 
   return (
-    <div className="p-4">
-      {!isEditing ? (
-        <>
-          <div className="flex text-amber-400 mb-2">
-            {Array.from({ length: 5 }, (_, i) => {
-              const r = course?.rating || 0;
-              if (r >= i + 1) return <FaStar key={i} className="w-5 h-5" />;
-              else if (r >= i + 0.5)
-                return <FaStarHalfAlt key={i} className="w-5 h-5" />;
-              else return <FaRegStar key={i} className="w-5 h-5 text-gray-200" />;
-            })}
-          </div>
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md space-y-6 mt-8 mb-12"
+    >
+      <h2 className="text-2xl font-bold text-blue-600 mb-4">
+        Add Details for Course ID: {courseId}
+      </h2>
 
-          <h1 className="text-xl font-bold">{course?.name}</h1>
-          <p className="text-sm text-gray-600">Instructor: {course?.instructor}</p>
-          <p className="text-sm text-gray-600">Category: {course?.categories}</p>
+      {/* Overview, Demands, Opportunities */}
+      <textarea
+        name="overview"
+        value={formData.overview}
+        onChange={handleChange}
+        placeholder="Course Overview"
+        className="w-full px-4 py-2 border rounded mb-3"
+      />
+      <textarea
+        name="demandsAndScopes"
+        value={formData.demandsAndScopes}
+        onChange={handleChange}
+        placeholder="Demands & Scopes"
+        className="w-full px-4 py-2 border rounded mb-3"
+      />
+      <textarea
+        name="opportunities"
+        value={formData.opportunities}
+        onChange={handleChange}
+        placeholder="Opportunities"
+        className="w-full px-4 py-2 border rounded mb-3"
+      />
 
-          <div className="my-4">
-            <img
-              className="h-56z w-56 object-cover rounded"
-              src={`http://localhost:9000/image/${course?.image}`}
-              alt={course?.name}
+      {/* Requirements */}
+      <h3 className="text-lg font-semibold">Requirements</h3>
+      {formData.requirement.map((item, idx) => (
+        <input
+          key={idx}
+          type="text"
+          value={item}
+          onChange={(e) => handleArrayChange(e, idx, "requirement")}
+          className="w-full px-4 py-2 border rounded mb-2"
+        />
+      ))}
+      <button
+        type="button"
+        onClick={() => handleAddInput("requirement")}
+        className="text-sm text-blue-600 mb-3 underline"
+      >
+        + Add Requirement
+      </button>
+
+      {/* What You Will Learn Accordion */}
+      <h3 className="text-xl font-bold mt-6 mb-2 text-blue-700">What You Will Learn</h3>
+
+      {/* Section 1 */}
+      <div className="border rounded mb-4">
+        <button
+          type="button"
+          className="w-full flex items-center justify-between px-4 py-2 font-semibold bg-gray-100 hover:bg-gray-200"
+          onClick={() => toggleSection("section1")}
+        >
+          {formData.whatYouWillLearn.section1Title || "Section 1"}
+          {expandedSections.section1 ? <FaChevronUp /> : <FaChevronDown />}
+        </button>
+        {expandedSections.section1 && (
+          <div className="p-4 space-y-2">
+            <input
+              type="text"
+              name="whatYouWillLearn.section1Title"
+              value={formData.whatYouWillLearn.section1Title}
+              onChange={handleChange}
+              placeholder="Section 1 Title"
+              className="w-full px-4 py-2 border rounded"
             />
-          </div>
-
-          <p>Duration: {course?.duration}</p>
-          <p>Period: {course?.period}</p>
-          <p>Requirement: {course?.requirement}</p>
-          <p>Overview: {course?.overview}</p>
-          <p>Demands & Scopes: {course?.demandsAndScopes}</p>
-          <p>Opportunities: {course?.opportunities}</p>
-
-          <div className="mt-4">
-            <h2 className="text-lg font-semibold mb-2">What You Will Learn</h2>
-
-            {course?.whatYouWillLearn?.section1Points?.length > 0 && (
-              <div className="mb-2">
-                <h3 className="font-medium">Section 1:</h3>
-                <ul className="list-disc list-inside">
-                  {course.whatYouWillLearn.section1Points.map((point, idx) => (
-                    <li key={`s1-${idx}`}>{point}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {course?.whatYouWillLearn?.section2Points?.length > 0 && (
-              <div className="mb-2">
-                <h3 className="font-medium">Section 2:</h3>
-                <ul className="list-disc list-inside">
-                  {course.whatYouWillLearn.section2Points.map((point, idx) => (
-                    <li key={`s2-${idx}`}>{point}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={() => setIsEditing(true)}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Edit Course
-          </button>
-        </>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            value={course.name}
-            onChange={handleChange}
-            placeholder="Course Name"
-            className="w-full border px-3 py-2 rounded"
-          />
-          <input
-            type="text"
-            name="instructor"
-            value={course.instructor}
-            onChange={handleChange}
-            placeholder="Instructor"
-            className="w-full border px-3 py-2 rounded"
-          />
-          <input
-            type="text"
-            name="categories"
-            value={course.categories}
-            onChange={handleChange}
-            placeholder="Category"
-            className="w-full border px-3 py-2 rounded"
-          />
-          <input
-            type="text"
-            name="duration"
-            value={course.duration}
-            onChange={handleChange}
-            placeholder="Duration"
-            className="w-full border px-3 py-2 rounded"
-          />
-          <input
-            type="text"
-            name="period"
-            value={course.period}
-            onChange={handleChange}
-            placeholder="Period"
-            className="w-full border px-3 py-2 rounded"
-          />
-          <input
-            type="text"
-            name="requirement"
-            value={course.requirement}
-            onChange={handleChange}
-            placeholder="Requirement"
-            className="w-full border px-3 py-2 rounded"
-          />
-          <textarea
-            name="overview"
-            value={course.overview}
-            onChange={handleChange}
-            placeholder="Overview"
-            className="w-full border px-3 py-2 rounded"
-          />
-          <textarea
-            name="demandsAndScopes"
-            value={course.demandsAndScopes}
-            onChange={handleChange}
-            placeholder="Demands & Scopes"
-            className="w-full border px-3 py-2 rounded"
-          />
-          <textarea
-            name="opportunities"
-            value={course.opportunities}
-            onChange={handleChange}
-            placeholder="Opportunities"
-            className="w-full border px-3 py-2 rounded"
-          />
-
-          {/* Edit Sections */}
-          <div>
-            <h3 className="font-medium mb-2">Section 1 Points</h3>
-            {course?.whatYouWillLearn?.section1Points?.map((point, idx) => (
+            {formData.whatYouWillLearn.section1Points.map((point, idx) => (
               <input
-                key={`edit-s1-${idx}`}
+                key={idx}
                 type="text"
                 value={point}
                 onChange={(e) =>
-                  handleWhatYouWillLearnChange("section1Points", idx, e.target.value)
+                  handleSectionPointsChange(e, idx, "section1Points")
                 }
-                className="w-full mb-2 border px-2 py-1 rounded"
+                className="w-full px-4 py-2 border rounded"
               />
             ))}
             <button
               type="button"
-              onClick={() => addNewPoint("section1Points")}
-              className="text-blue-600 text-sm"
+              onClick={() => handleAddPoint("section1Points")}
+              className="text-sm text-blue-600 underline"
             >
-              + Add Section 1 Point
+              + Add Point
             </button>
           </div>
+        )}
+      </div>
 
-          <div>
-            <h3 className="font-medium mb-2">Section 2 Points</h3>
-            {course?.whatYouWillLearn?.section2Points?.map((point, idx) => (
+      {/* Section 2 */}
+      <div className="border rounded mb-4">
+        <button
+          type="button"
+          className="w-full flex items-center justify-between px-4 py-2 font-semibold bg-gray-100 hover:bg-gray-200"
+          onClick={() => toggleSection("section2")}
+        >
+          {formData.whatYouWillLearn.section2Title || "Section 2"}
+          {expandedSections.section2 ? <FaChevronUp /> : <FaChevronDown />}
+        </button>
+        {expandedSections.section2 && (
+          <div className="p-4 space-y-2">
+            <input
+              type="text"
+              name="whatYouWillLearn.section2Title"
+              value={formData.whatYouWillLearn.section2Title}
+              onChange={handleChange}
+              placeholder="Section 2 Title"
+              className="w-full px-4 py-2 border rounded"
+            />
+            {formData.whatYouWillLearn.section2Points.map((point, idx) => (
               <input
-                key={`edit-s2-${idx}`}
+                key={idx}
                 type="text"
                 value={point}
                 onChange={(e) =>
-                  handleWhatYouWillLearnChange("section2Points", idx, e.target.value)
+                  handleSectionPointsChange(e, idx, "section2Points")
                 }
-                className="w-full mb-2 border px-2 py-1 rounded"
+                className="w-full px-4 py-2 border rounded"
               />
             ))}
             <button
               type="button"
-              onClick={() => addNewPoint("section2Points")}
-              className="text-blue-600 text-sm"
+              onClick={() => handleAddPoint("section2Points")}
+              className="text-sm text-blue-600 underline"
             >
-              + Add Section 2 Point
+              + Add Point
             </button>
           </div>
+        )}
+      </div>
 
-          <div className="flex gap-2 mt-4">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              Save Changes
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCourse(originalCourse);
-                setIsEditing(false);
-              }}
-              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-    </div>
+      {/* Submit */}
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+      >
+        Submit Course Description
+      </button>
+    </form>
   );
 }
 

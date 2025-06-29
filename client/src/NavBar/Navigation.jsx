@@ -70,7 +70,7 @@ function Navigation() {
         </NavLink>
 
         {/* User Profile dropdown */}
-        {user && (
+        {user && user._id &&  (
           <div>
             <div
               onClick={() => setDropdownOpen(!dropdownOpen)}

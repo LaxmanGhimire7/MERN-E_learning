@@ -29,7 +29,6 @@ import Contact from "./Pages/Contact";
 import Success from "./Pages/Success";
 import Partnership from "./Pages/Partnership";
 import TeachingMethodologies from "./Pages/TeachingMethodologies";
-import InstructorCourseManagement from "./Instructor/InstructorCourseManagement";
 
 
 
@@ -70,7 +69,8 @@ function App() {
       <Route path="user" element={<UserManagement />} />
       <Route path="course/addCourse" element={<AddCourse />} />
       <Route path="course/editCourse" element={<EditCourse />} />
-      <Route path="course/AddCourseDetails" element={<AddCourseDetails />} />
+      <Route path="course/AddCourseDetails/:courseId" element={<AddCourseDetails />} />
+
     </Route>
   </Route>
 
@@ -78,8 +78,6 @@ function App() {
   <Route element={<ProtectedRoute allowedRoles={['instructor', 'admin']} />}>
     <Route path="/instructor-dashboard" element={<InstructorDashboard />}>
     <Route index element={<InstructorHome/>} />
-    <Route path="instructorHome" element={<InstructorHome/>}/>
-    <Route path="instructorCourse" element={<InstructorCourseManagement />} />
     <Route path="course/addCourse" element={<AddCourse />} />
       <Route path="course/editCourse" element={<EditCourse />} />
       <Route path="course/AddCourseDetails" element={<AddCourseDetails />} />

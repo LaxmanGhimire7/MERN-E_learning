@@ -4,6 +4,7 @@ const createCourse = async (req, res) => {
   try {
     const image = req.file ? req.file.filename : "default-picture.png";
 
+    // Convert string to boolean if using FormData
     const isBestsellerValue =
       req.body.isBestseller === "true" || req.body.isBestseller === true;
     const isFeaturedValue =
@@ -12,6 +13,7 @@ const createCourse = async (req, res) => {
     const { name, instructor, price, discountPrice, rating, duration } =
       req.body;
 
+    // Validate required fields
     if (
       !image ||
       !name ||
@@ -28,6 +30,7 @@ const createCourse = async (req, res) => {
         .json({ status: 400, msg: "All fields are required" });
     }
 
+    // Save course
     let response = new Course({
       image,
       name,
@@ -38,7 +41,6 @@ const createCourse = async (req, res) => {
       duration,
       isBestseller: isBestsellerValue,
       isFeatured: isFeaturedValue,
-      createdBy: req.user._id, 
     });
 
     response = await response.save();
@@ -53,40 +55,27 @@ const createCourse = async (req, res) => {
 };
 
 const getAllCourse = async (req, res) => {
-  try {
-    let response = await Course.find({});
-    if (!response) {
-      return res.status(404).json({ status: 404, msg: "Course not Found" });
-    }
-    res.status(200).json({ status: 200, msg: "Course found", response });
-  } catch (err) {
-    res.status(500).json({ status: 500, msg: "Server Error" });
+  let response = await Course.find({});
+  if (!response) {
+    return res.status(404).json({ status: 404, msg: "Course not Found " });
   }
+  res.status(200).json({ status: 200, msg: "Course found ", response });
 };
 
 const deleteCourse = async (req, res) => {
   const courseId = req.params.id;
+  console.log(courseId);
 
   if (!courseId) {
-    return res.status(400).json({ status: 400, msg: "Course ID Not Found" });
+    return res.status(400).json({ status: 400, msg: "Course Id Not Found" });
   }
 
   try {
-    const course = await Course.findById(courseId);
+    let response = await Course.findByIdAndDelete(courseId);
 
-    if (!course) {
+    if (!response) {
       return res.status(404).json({ status: 404, msg: "Course not found" });
     }
-
-    // instructor le aafno course matra delete garna sakxa
-    if (
-      req.user.role === "instructor" &&
-      course.createdBy.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ status: 403, msg: "Unauthorized" });
-    }
-
-    const response = await Course.findByIdAndDelete(courseId);
 
     return res
       .status(200)
@@ -111,19 +100,6 @@ const editCourse = async (req, res) => {
       isFeatured,
       duration,
     } = req.body;
-
-    const course = await Course.findById(id);
-    if (!course) {
-      return res.status(404).json({ status: 404, msg: "Course not found" });
-    }
-
-    //instructor le aafno course matra edit garna sakxa
-    if (
-      req.user.role === "instructor" &&
-      course.createdBy.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ status: 403, msg: "Unauthorized" });
-    }
 
     let updateFields = {
       name,
@@ -157,71 +133,62 @@ const editCourse = async (req, res) => {
 const editCourseDetails = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("➡️ EditCourseDetails called");
+    console.log("Params ID:", id);
+    console.log("Raw Body:", req.body);
+
     const {
       categories,
       period,
-      requirement,
       overview,
       demandsAndScopes,
       opportunities,
-      whatYouWillLearn,
     } = req.body;
 
-    const course = await Course.findById(id);
-    if (!course) {
-      return res.status(404).json({ status: 404, msg: "Course not found" });
+    // Parse JSON safely
+    let requirement = [];
+    let whatYouWillLearn = {};
+
+    try {
+      if (req.body.requirement) {
+        requirement = JSON.parse(req.body.requirement);
+      }
+      if (req.body.whatYouWillLearn) {
+        whatYouWillLearn = JSON.parse(req.body.whatYouWillLearn);
+      }
+    } catch (parseError) {
+      console.error("❌ JSON parse error:", parseError);
+      return res.status(400).json({ message: "Invalid JSON format" });
     }
 
-    // yo chai instructor le cha9i aafno course matra edit garna pauxa
-    if (
-      req.user.role === "instructor" &&
-      course.createdBy.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ status: 403, msg: "Unauthorized" });
-    }
-
-    let updatedCourse = {
+    const updatedCourse = {
       categories,
       period,
-      requirement,
       overview,
       demandsAndScopes,
       opportunities,
+      requirement,
       whatYouWillLearn,
     };
 
-    const response = await Course.findByIdAndUpdate(
-      { _id: id },
-      updatedCourse,
-      { new: true }
-    );
+    const response = await Course.findByIdAndUpdate(id, updatedCourse, {
+      new: true,
+    });
+
+    if (!response) {
+      return res.status(404).json({ message: "Course not found" });
+    }
 
     res.status(200).json({
       status: 200,
-      msg: "Course details updated successfully",
+      message: "Course details updated successfully",
       response,
     });
   } catch (error) {
-    console.error("Error updating course:", error);
-    res.status(500).json({ status: 500, msg: "Server error", error });
-  }
-};
-
-const getInstructorCourses = async (req, res) => {
-  try {
-    const courses = await Course.find({ createdBy: req.user._id });
-    res.status(200).json({ status: 200, courses });
-  } catch (error) {
-    res.status(500).json({ status: 500, msg: "Server Error", error });
+    console.error("❌ Server error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 
-module.exports = {
-  createCourse,
-  getAllCourse,
-  deleteCourse,
-  editCourse,
-  editCourseDetails,
-  getInstructorCourses,
-};
+module.exports = { createCourse, getAllCourse, deleteCourse, editCourse, editCourseDetails }

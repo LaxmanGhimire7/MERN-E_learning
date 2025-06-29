@@ -4,8 +4,8 @@ import { Outlet } from 'react-router-dom'
 
 function InstructorDashboard() {
   return (
-    <div>
-      <div className='w-[400px]'>
+    <div className='flex'>
+      <div className='w-[250px]'>
         <InstructorNavigation />
       </div>
 

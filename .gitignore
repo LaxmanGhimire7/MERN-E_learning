@@ -7,28 +7,29 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependency directories
+node_modules/
+backend/node_modules/
+client/node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Local environment variables
+backend/.env
 *.local
 
-# Editor directories and files
+# IDE/editor files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-backend/.env
 
-# Ignore uploaded files (e.g., images)
-.env
-
-# Ignore uploaded files (e.g., images)
-/public/upload/
-backend/node_modules
-
-
+# Uploads (e.g., user-uploaded images in backend)
+backend/public/upload/
