@@ -414,7 +414,13 @@ function Home() {
           </div>
         </div>
 
-          <div>
+         {/* Testimonials ko lagii */}
+      <section className="my-10">
+        <h2 className="text-2xl font-bold mb-4 text-center">What Our Students Say</h2>
+        <ApprovedTestimonials />
+      </section>
+
+          <div className="-mt-8">
           <TeachingMethodologies />
         </div>
 
@@ -422,11 +428,7 @@ function Home() {
           <Partnership />
         </div>
 
-      {/* Testimonials ko lagii */}
-      <section className="my-10">
-        <h2 className="text-2xl font-bold mb-4">What Our Students Say</h2>
-        <ApprovedTestimonials />
-      </section>
+     
 
         {/* This is for fotter */}
 

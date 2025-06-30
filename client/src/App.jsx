@@ -83,9 +83,9 @@ function App() {
   <Route element={<ProtectedRoute allowedRoles={['instructor', 'admin']} />}>
     <Route path="/instructor-dashboard" element={<InstructorDashboard />}>
     <Route index element={<InstructorHome/>} />
-    <Route path="course/addCourse" element={<AddCourse />} />
-      <Route path="course/editCourse" element={<EditCourse />} />
-      <Route path="course/AddCourseDetails" element={<AddCourseDetails />} />
+
+
+
     </Route>
   </Route>
 
