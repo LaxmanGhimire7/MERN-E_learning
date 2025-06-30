@@ -42,7 +42,7 @@ const getAllTestimonials = async (req, res) => {
 const getApprovedTestimonials = async (req, res) => {
   try {
     const testimonials = await Testimonial.find({ isApproved: true })
-      .populate("student", "name")
+      .populate("student", "firstName lastName userName")
       .populate("course", "name");
 
     res.status(200).json({ testimonials });

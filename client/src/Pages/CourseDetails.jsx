@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../Context/CartProvider";
 import {
   FaRegStar,
@@ -23,12 +23,13 @@ import {
 
 function CourseDetails() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { dispatch } = useContext(CartContext);
   const item = location?.state;
   const { courseId } = useParams();
 
   const [expandedLearn, setExpandedLearn] = useState({
-    section1: true,
+    section1: false,
     section2: false,
     section3: false,
     section4: false,
@@ -392,7 +393,7 @@ function CourseDetails() {
                   Add to Cart
                 </button>
 
-                <button className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-3 px-4 rounded-lg transition duration-200">
+                <button  className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-3 px-4 rounded-lg transition duration-200">
                   Buy Now
                 </button>
               </div>

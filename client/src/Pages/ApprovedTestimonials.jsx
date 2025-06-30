@@ -6,6 +6,7 @@ function ApprovedTestimonials() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
+  console.log(testimonials)
   useEffect(() => {
     const fetchApprovedTestimonials = async () => {
       try {
@@ -20,7 +21,7 @@ function ApprovedTestimonials() {
       }
     };
     fetchApprovedTestimonials();
-  }, []);
+  },[]);
 
   // Auto-rotate testimonials
   useEffect(() => {
@@ -30,7 +31,7 @@ function ApprovedTestimonials() {
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [testimonials]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -84,8 +85,19 @@ function ApprovedTestimonials() {
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center">
-                      <div className="bg-blue-100 p-3 rounded-full mr-4">
-                        <FaQuoteLeft className="text-blue-600 text-xl" />
+                      <div className="bg-blue-100 rounded-full mr-4">
+                        <div className="mt-6 flex justify-center">
+                    <div className="relative">
+                      <img
+                        src={`http://localhost:9000/image/${t.image}`}
+                        alt="Student"
+                        className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                        }}
+                      />
+                    </div>
+                  </div>
                       </div>
                       <div>
                         <h4 className="font-bold text-gray-900">
@@ -103,23 +115,7 @@ function ApprovedTestimonials() {
                     {t.message}
                   </p>
                   
-                  <div className="mt-6 flex justify-center">
-                    <div className="relative">
-                      <img
-                        src={`http://localhost:9000/image/${t.image}`}
-                        alt="Student"
-                        className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.parentNode.innerHTML = `
-                            <div class="bg-gray-200 border-2 border-dashed rounded-full w-16 h-16 flex items-center justify-center">
-                              <span class="text-gray-500 font-bold">${t.student?.firstName?.charAt(0) || "A"}</span>
-                            </div>
-                          `;
-                        }}
-                      />
-                    </div>
-                  </div>
+                 
                 </div>
               </div>
             ))}
