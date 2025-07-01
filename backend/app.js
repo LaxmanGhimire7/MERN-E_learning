@@ -12,7 +12,9 @@ const courseRoutes = require("./src/Routes/courseRoutes.js");
 const contactRoutes = require("./src/Routes/contactRoute.js")
 const courseOrderRoutes = require("./src/Routes/courseOrderRoutes.js");
 const studentRoutes = require("./src/Routes/studentRoutes.js");
-const testimonialRoutes = require("./src/Routes/testimonialRoutes.js")
+const testimonialRoutes = require("./src/Routes/testimonialRoutes.js");
+const assignmentRoutes = require("./src/Routes/assignmentRoutes.js");
+const assignmentSubmissionRoutes = require("./src/Routes/assignmentSubmissionRoutes.js")
 
 // Middleware
 app.use(cors()); // 
@@ -26,6 +28,8 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/order",courseOrderRoutes );
 app.use("/api/student", studentRoutes);
 app.use("/api/testimonial", testimonialRoutes);
+app.use("/api/assignment",assignmentRoutes);
+app.use("/api/submission",assignmentSubmissionRoutes);
 
 
 

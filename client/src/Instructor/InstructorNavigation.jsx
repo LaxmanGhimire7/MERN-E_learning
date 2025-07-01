@@ -1,16 +1,15 @@
-import { UserCircleIcon } from 'lucide-react';
-import { useContext } from 'react';
+import { UserCircleIcon } from "lucide-react";
+import { useContext } from "react";
 
-import { NavLink } from 'react-router-dom';
-import { AuthContext } from '../Context/AuthProvider';
-import { AcademicCapIcon } from '@heroicons/react/24/outline';
+import { NavLink } from "react-router-dom";
+import { AuthContext } from "../Context/AuthProvider";
+
 
 function InstructorNavigation() {
-
-  const {user} = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   return (
     <div>
-       <NavLink
+      <NavLink
         to="/userProfile"
         className="flex items-center gap-4 p-4 mb-6 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
       >
@@ -51,10 +50,19 @@ function InstructorNavigation() {
         Dashboard
       </NavLink>
 
-
-
-
-      
+      <NavLink
+        to={`create-assignment/${courseId}`}
+        className={({ isActive }) =>
+          `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+      ${
+        isActive
+          ? "bg-blue-100 text-blue-700"
+          : "text-gray-600 hover:bg-blue-50"
+      }`
+        }
+      >
+        Assignment
+      </NavLink>
 
       <NavLink
         to="/userProfile"
@@ -72,7 +80,7 @@ function InstructorNavigation() {
         My Profile
       </NavLink>
     </div>
-  )
+  );
 }
 
 export default InstructorNavigation;
