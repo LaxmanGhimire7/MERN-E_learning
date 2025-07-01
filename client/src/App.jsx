@@ -88,8 +88,7 @@ function App() {
           <Route path="/instructor-dashboard" element={<InstructorDashboard />}>
             <Route index element={<InstructorHome />} />
             <Route path="instructorHome" element={<InstructorHome />} />
-            <Route path="create-assignment/:courseId" element={<CreateAssignment />} />
-
+            <Route path="createAssignment" element={<CreateAssignment />} />
           </Route>
         </Route>
 

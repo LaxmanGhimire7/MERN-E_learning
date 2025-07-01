@@ -92,6 +92,23 @@ const deleteCourse = async (req, res) => {
   }
 };
 
+// const getCoursesAssignedToInstructor = async (req, res) => {
+//   try {
+//     const instructorId = req.user.id;
+//     const courses = await Course.find({ instructor: instructorId });
+
+//     if (!courses || courses.length === 0) {
+//       return res.status(404).json({ status: 404, msg: "No assigned courses found" });
+//     }
+
+//     res.status(200).json({ status: 200, data: courses });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     res.status(500).json({ status: 500, msg: "Server error" });
+//   }
+// };
+
+
 const editCourse = async (req, res) => {
   try {
     const { id } = req.params;

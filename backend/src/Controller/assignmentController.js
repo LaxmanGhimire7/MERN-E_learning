@@ -1,6 +1,7 @@
 const Assignment = require("../Model/assignmentModel");
 
 const createAssignment = async (req, res) => {
+    console.log(req.body)
   const { course, title, description, dueDate } = req.body;
   const instructorId = req.user.id;
 

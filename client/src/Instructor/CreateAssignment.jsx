@@ -11,12 +11,13 @@ function CreateAssignment() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [assignedCourses, setAssignedCourses] = useState([]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:9000/api/assignment/instructor/create", {
+      const res = await fetch("http://localhost:9000/api/assignment/createAssignment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,12 +39,14 @@ function CreateAssignment() {
         setDescription("");
         setDueDate("");
       } else {
-        toast.error(data.msg || "❌ Failed to create assignment.");
+        toast.error(data.msg || "Failed to create assignment.");
       }
     } catch (err) {
-      toast.error("❌ Server error. Try again.");
+      toast.error("Server error. Try again.");
     }
   };
+
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 px-4">

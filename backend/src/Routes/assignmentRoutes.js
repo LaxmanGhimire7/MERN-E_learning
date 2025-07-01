@@ -4,7 +4,7 @@ const authMiddleware = require("../Middleware/authMiddleware");
 
 const {createAssignment, getAssignmentsByCourse} = require("../Controller/assignmentController");
 
-router.post("/instructor/create", authMiddleware,createAssignment);
+router.post("/createAssignment", authMiddleware,createAssignment);
 router.get("/instructor/course/:courseId", authMiddleware, getAssignmentsByCourse);
 
 
