@@ -13,7 +13,9 @@ function CreateAssignment() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fetchAllCourses, setFetchAllCourses] = useState(false);
+  const [enrolledStudents, setEnrolledStudents] = useState(0);
 
+  // Fetch courses (instructor or all)
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -49,8 +51,25 @@ function CreateAssignment() {
       });
   }, [state.token, fetchAllCourses]);
 
+  // Fetch enrolled students count when course changes
+  useEffect(() => {
+    if (!courseId || assignToAll) return;
+
+    fetch(`http://localhost:9000/api/enrollments/count/${courseId}`, {
+      headers: { Authorization: `Bearer ${state.token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setEnrolledStudents(data.count || 0))
+      .catch(() => setEnrolledStudents(0));
+  }, [courseId, assignToAll, state.token]);
+
   const submitForm = async (e) => {
     e.preventDefault();
+
+    if (!assignToAll && enrolledStudents === 0) {
+      alert("⚠️ No enrolled students found for selected course.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("title", title);
@@ -91,7 +110,6 @@ function CreateAssignment() {
           Create Assignment
         </h2>
 
-        {/* Toggle: Show all courses */}
         <label className="inline-flex items-center space-x-3 cursor-pointer select-none self-start">
           <input
             type="checkbox"
@@ -104,24 +122,18 @@ function CreateAssignment() {
           </span>
         </label>
 
-        {error && (
-          <p className="text-red-600 font-medium text-center">{error}</p>
-        )}
-        {loading && (
-          <p className="text-gray-500 font-medium text-center">Loading courses...</p>
-        )}
+        {error && <p className="text-red-600 font-medium text-center">{error}</p>}
+        {loading && <p className="text-gray-500 font-medium text-center">Loading courses...</p>}
 
-        {/* Title & Due Date side by side */}
         <div className="flex flex-col md:flex-row md:space-x-6">
           <div className="flex-1 flex flex-col">
-            <label htmlFor="title" className="mb-2 font-semibold text-gray-700">
+            <label className="mb-2 font-semibold text-gray-700">
               Title <span className="text-red-500">*</span>
             </label>
             <input
-              id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="border border-gray-300 rounded-lg px-4 py-3"
               type="text"
               placeholder="Enter assignment title"
               required
@@ -129,45 +141,38 @@ function CreateAssignment() {
           </div>
 
           <div className="flex-1 flex flex-col mt-6 md:mt-0">
-            <label htmlFor="dueDate" className="mb-2 font-semibold text-gray-700">
+            <label className="mb-2 font-semibold text-gray-700">
               Due Date <span className="text-red-500">*</span>
             </label>
             <input
-              id="dueDate"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="border border-gray-300 rounded-lg px-4 py-3"
               type="datetime-local"
               required
             />
           </div>
         </div>
 
-        {/* Description full width */}
         <div className="flex flex-col">
-          <label htmlFor="description" className="mb-2 font-semibold text-gray-700">
-            Description
-          </label>
+          <label className="mb-2 font-semibold text-gray-700">Description</label>
           <textarea
-            id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition min-h-[100px]"
+            className="border border-gray-300 rounded-lg px-4 py-3 resize-none min-h-[100px]"
             placeholder="Enter assignment description"
           />
         </div>
 
-        {/* Course select and assignToAll checkbox side by side */}
         <div className="flex flex-col md:flex-row md:space-x-6 items-center">
           <div className="flex-1 flex flex-col w-full">
-            <label htmlFor="course" className="mb-2 font-semibold text-gray-700">
+            <label className="mb-2 font-semibold text-gray-700">
               Select Course <span className="text-red-500">*</span>
             </label>
             <select
-              id="course"
               value={courseId}
               onChange={(e) => setCourseId(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition w-full"
+              className="border border-gray-300 rounded-lg px-4 py-3"
               required
               disabled={loading || courses.length === 0}
             >
@@ -193,21 +198,25 @@ function CreateAssignment() {
           </label>
         </div>
 
-        {/* Attachment */}
+        {/* Conditional warning if "Assign to All" is unchecked and no students */}
+        {!assignToAll && courseId && enrolledStudents === 0 && (
+          <p className="text-yellow-600 font-medium text-sm mt-1">
+            ⚠️ No enrolled students in selected course.
+          </p>
+        )}
+
         <div className="flex flex-col w-full">
-          <label htmlFor="attachment" className="mb-2 font-semibold text-gray-700">
+          <label className="mb-2 font-semibold text-gray-700">
             Attachment (PDF / Word)
           </label>
           <input
-            id="attachment"
             onChange={(e) => setAttachment(e.target.files[0])}
-            className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="border border-gray-300 rounded-lg px-4 py-3"
             type="file"
             accept=".pdf,.doc,.docx"
           />
         </div>
 
-        {/* Submit button */}
         <button
           type="submit"
           disabled={loading || courses.length === 0}

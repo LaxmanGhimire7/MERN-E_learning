@@ -69,6 +69,23 @@ const getAllCourse = async (req, res) => {
   res.status(200).json({ status: 200, msg: "Course found ", response });
 };
 
+const getStudentsByCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const enrolled = await CourseOrder.find({
+      "course.courseId": courseId,
+      enrollmentStatus: "ACTIVE",
+    }).populate("userId", "firstName lastName email");
+
+    const students = enrolled.map((order) => order.userId);
+
+    res.status(200).json({ status: 200, students });
+  } catch (error) {
+    res.status(500).json({ status: 500, msg: "Error fetching students", error: error.message });
+  }
+};
+
 const deleteCourse = async (req, res) => {
   const courseId = req.params.id;
 
@@ -216,4 +233,4 @@ const editCourseDetails = async (req, res) => {
   }
 };
 
-module.exports = { createCourse, getAllCourse, deleteCourse,getCoursesForInstructor, editCourse, editCourseDetails };
+module.exports = { createCourse, getAllCourse, deleteCourse,getCoursesForInstructor, editCourse, editCourseDetails, getStudentsByCourse };
