@@ -1,11 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../Middleware/authMiddleware");
+const auth = require("../Middleware/authMiddleware");
+const upload = require("../Middleware/upload")
+const {
+  createAssignment,
+  getAssignmentsForCourse,
+  updateAssignment,
+  deleteAssignment,
+} = require("../Controller/assignmentController");
 
-const {createAssignment, getAssignmentsByCourse} = require("../Controller/assignmentController");
+router.post("/createAssignment", auth, upload.single("attachment"), createAssignment);
+router.get("/getAssignmentsForCourse/:courseId", auth, getAssignmentsForCourse);
+router.put("/updateAssignment/:id", auth, upload.single("attachment"), updateAssignment);
+router.delete("/deleteAssignment/:id", auth, deleteAssignment);
 
-router.post("/createAssignment", authMiddleware,createAssignment);
-router.get("/instructor/course/:courseId", authMiddleware, getAssignmentsByCourse);
-
-
-module.exports = router;
+module.exports = router; 

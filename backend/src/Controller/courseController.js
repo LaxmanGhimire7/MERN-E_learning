@@ -92,21 +92,24 @@ const deleteCourse = async (req, res) => {
   }
 };
 
-// const getCoursesAssignedToInstructor = async (req, res) => {
-//   try {
-//     const instructorId = req.user.id;
-//     const courses = await Course.find({ instructor: instructorId });
+const getCoursesForInstructor = async (req, res) => {
+  try {
+    const instructorId = req.user.id;
 
-//     if (!courses || courses.length === 0) {
-//       return res.status(404).json({ status: 404, msg: "No assigned courses found" });
-//     }
+    const courses = await Course.find({ instructor: instructorId });
 
-//     res.status(200).json({ status: 200, data: courses });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     res.status(500).json({ status: 500, msg: "Server error" });
-//   }
-// };
+    if (!courses || courses.length === 0) {
+      return res
+        .status(404)
+        .json({ status: 404, msg: "No courses assigned to instructor" });
+    }
+
+    res.status(200).json({ status: 200, response: courses });
+  } catch (error) {
+    console.error("Error getting instructor courses:", error);
+    res.status(500).json({ status: 500, msg: "Server Error" });
+  }
+};
 
 
 const editCourse = async (req, res) => {
@@ -213,4 +216,4 @@ const editCourseDetails = async (req, res) => {
   }
 };
 
-module.exports = { createCourse, getAllCourse, deleteCourse, editCourse, editCourseDetails };
+module.exports = { createCourse, getAllCourse, deleteCourse,getCoursesForInstructor, editCourse, editCourseDetails };

@@ -1,50 +1,149 @@
 const Assignment = require("../Model/assignmentModel");
+const CourseOrder = require("../Model/courseOrderModel");
+const Course = require("../Model/courseModel");
 
 const createAssignment = async (req, res) => {
-    console.log(req.body)
-  const { course, title, description, dueDate } = req.body;
-  const instructorId = req.user.id;
-
-  if (!course || !title || !instructorId) {
-    return res.status(400).json({ status: 400, msg: "Required fields missing" });
-  }
-
   try {
-    const assignment = new Assignment({
-      course,
+    const {
       title,
       description,
       dueDate,
-      createdBy: instructorId,
+      courseId,
+      assignToAll = false,
+      assignTo = [],
+    } = req.body;
+
+    if (req.user.role !== "instructor") {
+      return res.status(403).json({ msg: "Only instructors can create assignments" });
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ msg: "Course not found" });
+
+    let studentIds = [];
+
+    if (assignToAll === "true" || assignToAll === true) {
+      const orders = await CourseOrder.find({
+        "course.courseId": courseId,
+        enrollmentStatus: "ACTIVE",
+      });
+      studentIds = orders.map((order) => order.userId);
+    } else {
+      studentIds = assignTo;
+    }
+
+    const attachment = req.file ? req.file.filename : "";
+
+    const assignment = new Assignment({
+      title,
+      description,
+      dueDate,
+      courseId,
+      instructorId: req.user._id,
+      assignTo: studentIds,
+      attachment,
     });
 
-    await assignment.save();
+    const response = await assignment.save();
 
-    return res.status(201).json({ status: 201, msg: "Assignment created", data: assignment });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ status: 500, msg: "Error creating assignment" });
+    res.status(201).json({ status: 201, msg: "Assignment created", assignment: response });
+  } catch (error) {
+    res.status(500).json({ msg: "Server Error", error: error.message });
   }
 };
 
-
-const getAssignmentsByCourse = async (req, res) => {
-  const { courseId } = req.params;
-
+const getAssignmentsForCourse = async (req, res) => {
   try {
-    const assignments = await Assignment.find({ course: courseId });
-    if (!assignments || assignments.length === 0) {
-      return res.status(404).json({ status: 404, msg: "No assignments found" });
+    const { courseId } = req.params;
+
+    let filter = { courseId };
+
+    if (req.user.role === "student") {
+      filter.assignTo = req.user._id;
+    } else if (req.user.role === "instructor") {
+      filter.instructorId = req.user._id;
     }
 
-    return res.status(200).json({ status: 200, msg: "Assignments fetched", data: assignments });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ status: 500, msg: "Error fetching assignments" });
+    const assignments = await Assignment.find(filter)
+      .sort({ dueDate: 1 })
+      .populate("courseId", "name")
+      .populate("assignTo", "firstName email");
+
+    res.status(200).json({ status: 200, assignments });
+  } catch (error) {
+    res.status(500).json({ msg: "Error fetching assignments", error: error.message });
+  }
+};
+
+const updateAssignment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const assignment = await Assignment.findById(id);
+    if (!assignment) return res.status(404).json({ msg: "Assignment not found" });
+
+    if (req.user.role !== "instructor" || assignment.instructorId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ msg: "Unauthorized" });
+    }
+
+    const {
+      title,
+      description,
+      dueDate,
+      assignToAll,
+      assignTo = [],
+    } = req.body;
+
+    let studentIds = [];
+
+    if (assignToAll === "true" || assignToAll === true) {
+      const orders = await CourseOrder.find({
+        "course.courseId": assignment.courseId,
+        enrollmentStatus: "ACTIVE",
+      });
+      studentIds = orders.map((order) => order.userId);
+    } else {
+      studentIds = assignTo;
+    }
+
+    if (req.file) {
+      assignment.attachment = req.file.filename;
+    }
+
+    assignment.title = title || assignment.title;
+    assignment.description = description || assignment.description;
+    assignment.dueDate = dueDate || assignment.dueDate;
+    assignment.assignTo = studentIds;
+
+    await assignment.save();
+
+    res.status(200).json({ msg: "Assignment updated", assignment });
+  } catch (error) {
+    res.status(500).json({ msg: "Server Error", error: error.message });
+  }
+};
+
+const deleteAssignment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const assignment = await Assignment.findById(id);
+    if (!assignment) return res.status(404).json({ msg: "Assignment not found" });
+
+    if (req.user.role !== "instructor" || assignment.instructorId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ msg: "Unauthorized" });
+    }
+
+    await assignment.deleteOne();
+    res.status(200).json({ msg: "Assignment deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ msg: "Server Error", error: error.message });
   }
 };
 
 module.exports = {
   createAssignment,
-  getAssignmentsByCourse
+  getAssignmentsForCourse,
+  updateAssignment,
+  deleteAssignment,
 };

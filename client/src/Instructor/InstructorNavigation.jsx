@@ -66,10 +66,6 @@ function InstructorNavigation() {
       </NavLink>
 
 
-
-
-      
-
       <NavLink
         to="/userProfile"
         title="My Profile"
