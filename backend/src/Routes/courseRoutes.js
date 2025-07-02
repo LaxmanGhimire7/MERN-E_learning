@@ -12,7 +12,7 @@ router.delete("/deleteCourse/:id", deleteCourse)
 router.put("/editCourse/:id", upload.single("image"), editCourse)
 router.put("/editCourseDetails/:id", upload.none(), editCourseDetails)
 router.get("/instructor-courses", authMiddleware, getCoursesForInstructor);
-router.get("/course/:courseId/students", authMiddleware, getStudentsByCourse);
+router.get("/:courseId/students", getStudentsByCourse);
 
 
 

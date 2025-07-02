@@ -1,4 +1,6 @@
 const Course = require("../Model/courseModel");
+const CourseOrder = require("../Model/courseOrderModel");
+const User = require("../Model/userModel");
 
 const createCourse = async (req, res) => {
   try {
@@ -70,19 +72,25 @@ const getAllCourse = async (req, res) => {
 };
 
 const getStudentsByCourse = async (req, res) => {
-  try {
-    const { courseId } = req.params;
+  const { courseId } = req.params;
 
-    const enrolled = await CourseOrder.find({
+  try {
+    // Find active enrollments for the course and populate user details
+    const enrollments = await CourseOrder.find({
       "course.courseId": courseId,
       enrollmentStatus: "ACTIVE",
     }).populate("userId", "firstName lastName email");
 
-    const students = enrolled.map((order) => order.userId);
+    const students = enrollments.map((enroll) => ({
+      _id: enroll.userId._id,
+      fullName: `${enroll.userId.firstName} ${enroll.userId.lastName}`,
+      email: enroll.userId.email,
+    }));
 
-    res.status(200).json({ status: 200, students });
+    res.status(200).json({ students });
   } catch (error) {
-    res.status(500).json({ status: 500, msg: "Error fetching students", error: error.message });
+    console.error("Error fetching enrolled students:", error);
+    res.status(500).json({ msg: "Failed to fetch enrolled students" });
   }
 };
 
@@ -127,7 +135,6 @@ const getCoursesForInstructor = async (req, res) => {
     res.status(500).json({ status: 500, msg: "Server Error" });
   }
 };
-
 
 const editCourse = async (req, res) => {
   try {
@@ -181,13 +188,8 @@ const editCourseDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const {
-      categories,
-      period,
-      overview,
-      demandsAndScopes,
-      opportunities,
-    } = req.body;
+    const { categories, period, overview, demandsAndScopes, opportunities } =
+      req.body;
 
     let requirement = [];
     let whatYouWillLearn = {};
@@ -233,4 +235,12 @@ const editCourseDetails = async (req, res) => {
   }
 };
 
-module.exports = { createCourse, getAllCourse, deleteCourse,getCoursesForInstructor, editCourse, editCourseDetails, getStudentsByCourse };
+module.exports = {
+  createCourse,
+  getAllCourse,
+  deleteCourse,
+  getCoursesForInstructor,
+  editCourse,
+  editCourseDetails,
+  getStudentsByCourse,
+};
