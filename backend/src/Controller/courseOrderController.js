@@ -21,6 +21,22 @@ const createCourseOrder = async (req, res) => {
   }
 };
 
+const getEnrollmentCount = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const count = await CourseOrder.countDocuments({
+      "course.courseId": courseId,
+      enrollmentStatus: "ACTIVE",
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error("Error fetching enrollment count:", error);
+    res.status(500).json({ msg: "Error fetching enrollment count", error });
+  }
+};
+
 const getUserOrder = async (req, res) => {
   try {
     let userId = req.user._id;
@@ -88,4 +104,4 @@ const getOrder = async(req, res)=>{
 
 
 
-module.exports = { createCourseOrder, getUserOrder, success, getOrder };
+module.exports = { createCourseOrder,getEnrollmentCount, getUserOrder, success, getOrder };
