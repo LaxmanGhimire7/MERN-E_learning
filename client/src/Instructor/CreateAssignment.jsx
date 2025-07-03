@@ -51,7 +51,7 @@ function CreateAssignment() {
       });
   }, [state.token, fetchAllCourses]);
 
-  // Fetch enrolled students only when a course is selected and assignToAll is false
+  // Fetch enrolled students
   useEffect(() => {
     if (!courseId || assignToAll) {
       setEnrolledStudents([]);
@@ -76,12 +76,11 @@ function CreateAssignment() {
     e.preventDefault();
 
     if (!assignToAll && enrolledStudents.length === 0) {
-      alert(" No enrolled students found for the selected course.");
+      alert("⚠️ No enrolled students found for the selected course.");
       return;
     }
 
-    if (!window.confirm("Are you sure you want to create this assignment?"))
-      return;
+    if (!window.confirm("Are you sure you want to create this assignment?")) return;
 
     const formData = new FormData();
     formData.append("title", title);
@@ -89,18 +88,25 @@ function CreateAssignment() {
     formData.append("dueDate", dueDate);
     formData.append("courseId", courseId);
     formData.append("assignToAll", assignToAll);
+
+    // ✅ Append assignTo array if assignToAll is false
+    if (!assignToAll) {
+      enrolledStudents.forEach((student) => {
+        formData.append("assignTo[]", student._id);
+      });
+    }
+
     if (attachment) formData.append("attachment", attachment);
 
     try {
       setSubmitting(true);
-      const res = await fetch(
-        "http://localhost:9000/api/assignment/createAssignment",
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${state.token}` },
-          body: formData,
-        }
-      );
+      const res = await fetch("http://localhost:9000/api/assignment/createAssignment", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${state.token}`,
+        },
+        body: formData,
+      });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.msg || "Something went wrong");
@@ -143,12 +149,8 @@ function CreateAssignment() {
           </span>
         </label>
 
-        {error && (
-          <p className="text-red-600 text-center font-medium">{error}</p>
-        )}
-        {loading && (
-          <p className="text-gray-500 text-center">Loading courses...</p>
-        )}
+        {error && <p className="text-red-600 text-center font-medium">{error}</p>}
+        {loading && <p className="text-gray-500 text-center">Loading courses...</p>}
 
         {/* Title and Due Date */}
         <div className="flex flex-col md:flex-row gap-6">
@@ -219,11 +221,20 @@ function CreateAssignment() {
           </label>
         </div>
 
-        {/* Show enrolled students list if assignToAll is false */}
-        {/* Student preview (if assignToAll is false) */}
-       
+        {/* Enrolled student preview */}
+        {!assignToAll && enrolledStudents.length > 0 && (
+          <div className="bg-gray-100 p-4 rounded">
+            <h3 className="font-semibold mb-2 text-sm text-gray-700">
+              Enrolled Students ({enrolledStudents.length}):
+            </h3>
+            <ul className="list-disc list-inside text-gray-600 text-sm space-y-1">
+              {enrolledStudents.map((student) => (
+                <li key={student._id}>{student.name} ({student.email})</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-        {/* Warning if no enrolled students */}
         {!assignToAll && courseId && enrolledStudents.length === 0 && (
           <p className="text-yellow-600 font-medium text-sm">
             ⚠️ No enrolled students in the selected course.
@@ -243,8 +254,7 @@ function CreateAssignment() {
           />
           {attachment && (
             <p className="text-sm mt-2 text-gray-600">
-              📎 <strong>{attachment.name}</strong> (
-              {(attachment.size / 1024).toFixed(1)} KB)
+              📎 <strong>{attachment.name}</strong> ({(attachment.size / 1024).toFixed(1)} KB)
             </p>
           )}
         </div>

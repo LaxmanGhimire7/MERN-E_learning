@@ -10,24 +10,26 @@ const storage = multer.diskStorage({
   },
 });
 
-// Combined file filter for images and documents
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
-
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype.toLowerCase());
+  const allowedExt = /jpeg|jpg|png|gif|pdf|doc|docx/;
+  const extname = allowedExt.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedExt.test(file.mimetype); 
 
   if (extname && mimetype) {
     cb(null, true);
   } else {
-    cb(new Error("Only image files (JPG, PNG) or document files (PDF, DOC, DOCX) are allowed"));
+    cb(
+      new Error(
+        "Only image files (JPG, PNG, GIF) or document files (PDF, DOC, DOCX) are allowed"
+      )
+    );
   }
 };
 
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 module.exports = upload;

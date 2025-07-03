@@ -4,72 +4,88 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
-  const { firstName, lastName, userName, email, password } = req.body;
+  let { firstName, lastName, userName, email, password } = req.body;
+
+  email = email.toLowerCase().trim();
+
   try {
-    const data = await user.findOne({ email, userName });
-    if (data) {
-      const existingUser = data.email === email ? "email" : "username";
-      return res.status(409).json({
-        success: false,
-        message: `${existingUser} is already registered`,
-      });
+    const existingUser = await user.findOne({ 
+      $or: [{ email }, { userName }] 
+    });
+
+    if (existingUser) {
+      if (existingUser.email === email) {
+        return res.status(409).json({
+          success: false,
+          message: "Email is already registered",
+        });
+      } else {
+        return res.status(409).json({
+          success: false,
+          message: "Username is already taken",
+        });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    let response = new user({
+    let newUser = new user({
       firstName,
       lastName,
       userName,
       email,
       password: hashedPassword,
     });
-    response = await response.save();
-    return res
-      .status(201)
-      .json({ msg: "User is register successfully", response });
+
+    newUser = await newUser.save();
+
+    return res.status(201).json({ msg: "User registered successfully", newUser });
   } catch (error) {
-    return res.json({ msg: "error ", error });
+    return res.status(500).json({ msg: "Server error", error });
   }
 };
+
 
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ status: 400, msg: "Required username or email and password" });
-    }
-    const userDetail = await user.findOne({ email });
-    // .select("+password"); incase password ma select rakheko xa vanye
-    if (!userDetail) {
-      return res.status(404).json({ msg: " user not found" });
-    }
-    let isMatchedPassword = await bcrypt.compare(password, userDetail.password);
-    if (!isMatchedPassword) {
-      return res
-        .status(404)
-        .json({ status: 404, msg: "Username/Email or password is incorrect" });
+      return res.status(400).json({ msg: "Email and password are required" });
     }
 
-    // yo chai last login dekhyos vanera...
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const userDetail = await user.findOne({ email: normalizedEmail });
+    console.log("Login attempt for:", normalizedEmail);
+    if (!userDetail) {
+      console.log("User not found");
+      return res.status(401).json({ msg: "Email or password is incorrect" });
+    }
+
+    const isMatchedPassword = await bcrypt.compare(password, userDetail.password);
+    if (!isMatchedPassword) {
+      console.log("Password mismatch");
+      return res.status(401).json({ msg: "Email or password is incorrect" });
+    }
+
     userDetail.lastLogin = new Date();
     await userDetail.save();
 
     const token = jwt.sign({ id: userDetail._id }, process.env.secret_key, {
       expiresIn: "7d",
     });
+
     return res.status(200).json({
-      status: 200,
       msg: "User login successful",
       userDetail,
-      token: token,
+      token,
     });
   } catch (error) {
-    res.status(500).json({ status: 500, msg: "Server Error" });
+    console.error("Login error:", error);
+    res.status(500).json({ msg: "Server error" });
   }
 };
+
 
 const getUser = (req, res) => {
   res.status(200).json({ status: 200, msg: "user found", user: req.user });
