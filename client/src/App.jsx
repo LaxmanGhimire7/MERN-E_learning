@@ -33,6 +33,8 @@ import AddTestimonial from "./Student/AddTestimonial";
 import ManageTestimonials from "./Admin/ManageTestimonials";
 import ApprovedTestimonials from "./Pages/ApprovedTestimonials";
 import CreateAssignment from "./Instructor/createAssignment";
+import StudentAssignments from "./Student/StudentAssignments";
+import InstructorSubmissions from "./Instructor/InstructorSubmissions";
 // import CreateAssignment from "./Instructor/createAssignment";
 
 function App() {
@@ -90,6 +92,7 @@ function App() {
             <Route index element={<InstructorHome />} />
             <Route path="instructorHome" element={<InstructorHome />} />
             <Route path="createAssignment" element={<CreateAssignment />} />
+            <Route path="instructorSubmissions/:assignmentId" element={<InstructorSubmissions />} />
           </Route>
         </Route>
 
@@ -103,6 +106,7 @@ function App() {
             <Route index element={<StudentHome />} />
             <Route path="home" element={<StudentHome />} />
             <Route path="addTestimonial" element={<AddTestimonial />} />
+            <Route path="studentAssignment" element={<StudentAssignments />} />
           </Route>
         </Route>
       </Routes>

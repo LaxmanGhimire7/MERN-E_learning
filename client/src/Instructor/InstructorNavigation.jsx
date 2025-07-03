@@ -1,88 +1,98 @@
-import { UserCircleIcon } from 'lucide-react';
-import { useContext } from 'react';
-
-import { NavLink } from 'react-router-dom';
-import { AuthContext } from '../Context/AuthProvider';
-import { AcademicCapIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon } from "lucide-react";
+import { useContext } from "react";
+import { NavLink } from "react-router-dom";
+import { AuthContext } from "../Context/AuthProvider";
 
 function InstructorNavigation() {
+  const { user } = useContext(AuthContext);
 
-  const {user} = useContext(AuthContext);
   return (
-    <div>
-       <NavLink
-        to="/userProfile"
-        className="flex items-center gap-4 p-4 mb-6 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
-      >
-        <img
-          className="h-12 w-12 rounded-full border-2 border-blue-200"
-          src={`http://localhost:9000/image/${user.image}`}
-          alt="user profile"
-        />
-        <div>
-          <p className="text-sm font-medium text-blue-900">{user?.userName}</p>
-          <p className="text-xs text-red-600 font-medium">
-            <span
-              className={`py-1  text-xs font-medium ${
+    <div className="w-64 min-h-screen bg-white shadow p-4 flex flex-col justify-between">
+      <div>
+        {/* Profile Info */}
+        <NavLink
+          to="/userProfile"
+          className="flex items-center gap-4 p-4 mb-6 rounded-lg bg-blue-50 hover:bg-blue-100 transition"
+        >
+          <img
+            src={`http://localhost:9000/image/${user.image}`}
+            alt={`${user?.userName} profile`}
+            className="h-12 w-12 rounded-full border-2 border-blue-200"
+          />
+          <div>
+            <p className="text-sm font-semibold text-blue-900">{user?.userName}</p>
+            <p
+              className={`text-xs font-medium ${
                 user.role === "admin"
-                  ? " text-red-800"
+                  ? "text-red-700"
                   : user.role === "instructor"
-                  ? " text-purple-800"
-                  : " text-blue-800"
+                  ? "text-purple-700"
+                  : "text-blue-700"
               }`}
             >
               {user.role?.toUpperCase()}
-            </span>
-          </p>
-        </div>
-      </NavLink>
+            </p>
+          </div>
+        </NavLink>
 
-      <NavLink
-        to="instructorHome"
-        className={({ isActive }) =>
-          `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
-            ${
-              isActive
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-600 hover:bg-blue-50"
-            }`
-        }
-      >
-        Dashboard
-      </NavLink>
+        {/* Navigation Links */}
+        <nav className="space-y-2">
+          <NavLink
+            to="instructorHome"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-2 rounded-lg font-medium ${
+                isActive
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-700 hover:bg-blue-50"
+              }`
+            }
+          >
+            Dashboard
+          </NavLink>
 
-      <NavLink
-        to={"createAssignment"}
-        className={({ isActive }) =>
-          `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
-            ${
-              isActive
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-600 hover:bg-blue-50"
-            }`
-        }
-      >
-        Assignment
-      </NavLink>
+          <NavLink
+            to="createAssignment"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-2 rounded-lg font-medium ${
+                isActive
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-700 hover:bg-blue-50"
+              }`
+            }
+          >
+            Create Assignment
+          </NavLink>
 
+          <NavLink
+            to="instructorSubmissions"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-2 rounded-lg font-medium ${
+                isActive
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-700 hover:bg-blue-50"
+              }`
+            }
+          >
+            Receive Assignments
+          </NavLink>
 
-      <NavLink
-        to="/userProfile"
-        title="My Profile"
-        className={({ isActive }) =>
-          `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors mt-4
-            ${
-              isActive
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-600 hover:bg-blue-50"
-            }`
-        }
-      >
-        <UserCircleIcon className="h-5 w-5" />
-        My Profile
-      </NavLink>
+          <NavLink
+            to="/userProfile"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-2 rounded-lg font-medium mt-6 ${
+                isActive
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-700 hover:bg-blue-50"
+              }`
+            }
+          >
+            <UserCircleIcon className="h-5 w-5" />
+            My Profile
+          </NavLink>
+        </nav>
+      </div>
     </div>
-  )
+  );
 }
 
 export default InstructorNavigation;

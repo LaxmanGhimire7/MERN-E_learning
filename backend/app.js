@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const path = require("path")
 
 const connectDb = require("./src/Db/config");
 connectDb();
@@ -14,7 +15,7 @@ const courseOrderRoutes = require("./src/Routes/courseOrderRoutes.js");
 const studentRoutes = require("./src/Routes/studentRoutes.js");
 const testimonialRoutes = require("./src/Routes/testimonialRoutes.js");
 const assignmentRoutes = require("./src/Routes/assignmentRoutes");
-
+const assignmentSubmissionRoutes = require("./src/Routes/assignmentSubmissionRoutes.js")
 
 // Middleware
 app.use(cors()); // 
@@ -29,7 +30,8 @@ app.use("/api/order",courseOrderRoutes );
 app.use("/api/student", studentRoutes);
 app.use("/api/testimonial", testimonialRoutes);
 app.use("/api/assignment", assignmentRoutes);
-
+app.use("/api/assignmentSubmission", assignmentSubmissionRoutes);
+app.use("/assignment", express.static(path.join(__dirname, "public", "upload")));
 
 
 const PORT = process.env.PORT || 9000;
