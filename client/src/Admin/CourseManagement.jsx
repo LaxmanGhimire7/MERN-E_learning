@@ -139,7 +139,7 @@ function CourseManagement() {
                       <FaTrash className="w-4 h-4" />
                       Delete
                     </button>
-
+                    
                     <NavLink
                       to={`/dashboard/course/AddCourseDetails/${item._id}`}
                       className="flex-1 bg-gray-100 hover:bg-green-100 text-green-700 font-medium  py-2 rounded-lg transition-all flex items-center justify-center gap-2"

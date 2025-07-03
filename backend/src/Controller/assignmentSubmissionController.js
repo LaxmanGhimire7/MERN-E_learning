@@ -40,10 +40,10 @@ const submitAssignment = async (req, res) => {
 const getAssignmentsForInstructor = async (req, res) => {
   try {
     const instructorId = req.user._id || req.user.id;
-    console.log("Instructor ID from token:", instructorId);
+    // console.log("Instructor ID from token:", instructorId);
 
     const assignments = await Assignment.find({ instructorId }).populate("courseId", "name");
-    console.log("Assignments found:", assignments.length);
+    // console.log("Assignments found:", assignments.length);
 
     res.status(200).json({ assignments });
   } catch (error) {
@@ -57,8 +57,8 @@ const getAssignmentsForInstructor = async (req, res) => {
 const getStudentAssignments = async (req, res) => {
   try {
     const studentId = new mongoose.Types.ObjectId(req.user.id);
-    console.log("Student ID:", studentId);
-    console.log("User from token:", req.user);
+    // console.log("Student ID:", studentId);
+    // console.log("User from token:", req.user);
 
     const assignments = await Assignment.find({
       $or: [
@@ -67,7 +67,7 @@ const getStudentAssignments = async (req, res) => {
       ]
     }).populate("courseId", "name");
 
-    console.log("Fetched Assignments:", assignments);
+    // console.log("Fetched Assignments:", assignments);
 
     res.status(200).json({ status: 200, assignments });
   } catch (error) {
