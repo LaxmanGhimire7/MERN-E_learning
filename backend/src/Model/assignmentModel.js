@@ -40,6 +40,11 @@ const assignmentSchema = mongoose.Schema(
       },
     ],
 
+    assignToAll: {
+  type: Boolean,
+  default: false,
+},
+
     attachment: {
       type: String, 
       default: "",

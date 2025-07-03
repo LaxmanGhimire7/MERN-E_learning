@@ -81,6 +81,22 @@ function StudentNavigation() {
         Assignment
       </NavLink>
 
+      <NavLink
+        to="studentSubmissions"
+        title="My Profile"
+        className={({ isActive }) =>
+          `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors mt-4
+            ${
+              isActive
+                ? "bg-blue-100 text-blue-700"
+                : "text-gray-600 hover:bg-blue-50"
+            }`
+        }
+      >
+        <UserCircleIcon className="h-5 w-5" />
+        Assignment Result
+      </NavLink>
+
 
 
       <NavLink

@@ -9,9 +9,11 @@ const createAssignment = async (req, res) => {
       description,
       dueDate,
       courseId,
-      assignToAll = false,
       assignTo = [],
+      assignToAll,
     } = req.body;
+
+    const assignToAllBool = assignToAll === "true" || assignToAll === true;
 
     if (req.user.role !== "instructor") {
       return res.status(403).json({ msg: "Only instructors can create assignments" });
@@ -22,7 +24,7 @@ const createAssignment = async (req, res) => {
 
     let studentIds = [];
 
-    if (assignToAll === "true" || assignToAll === true) {
+    if (assignToAllBool) {
       const orders = await CourseOrder.find({
         "course.courseId": courseId,
         enrollmentStatus: "ACTIVE",
@@ -41,6 +43,7 @@ const createAssignment = async (req, res) => {
       courseId,
       instructorId: req.user._id,
       assignTo: studentIds,
+      assignToAll: assignToAllBool, // ✅ Save it
       attachment,
     });
 
@@ -51,6 +54,7 @@ const createAssignment = async (req, res) => {
     res.status(500).json({ msg: "Server Error", error: error.message });
   }
 };
+
 
 const getAssignmentsForCourse = async (req, res) => {
   try {
@@ -94,9 +98,11 @@ const updateAssignment = async (req, res) => {
       assignTo = [],
     } = req.body;
 
+    const assignToAllBool = assignToAll === "true" || assignToAll === true;
+
     let studentIds = [];
 
-    if (assignToAll === "true" || assignToAll === true) {
+    if (assignToAllBool) {
       const orders = await CourseOrder.find({
         "course.courseId": assignment.courseId,
         enrollmentStatus: "ACTIVE",
@@ -106,6 +112,7 @@ const updateAssignment = async (req, res) => {
       studentIds = assignTo;
     }
 
+    // Optional new file
     if (req.file) {
       assignment.attachment = req.file.filename;
     }
@@ -113,6 +120,7 @@ const updateAssignment = async (req, res) => {
     assignment.title = title || assignment.title;
     assignment.description = description || assignment.description;
     assignment.dueDate = dueDate || assignment.dueDate;
+    assignment.assignToAll = assignToAllBool;
     assignment.assignTo = studentIds;
 
     await assignment.save();
@@ -122,6 +130,7 @@ const updateAssignment = async (req, res) => {
     res.status(500).json({ msg: "Server Error", error: error.message });
   }
 };
+
 
 const deleteAssignment = async (req, res) => {
   try {

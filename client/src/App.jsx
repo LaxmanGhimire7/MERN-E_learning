@@ -35,6 +35,8 @@ import ApprovedTestimonials from "./Pages/ApprovedTestimonials";
 import CreateAssignment from "./Instructor/createAssignment";
 import StudentAssignments from "./Student/StudentAssignments";
 import InstructorSubmissions from "./Instructor/InstructorSubmissions";
+import InstructorAssignmentList from "./Instructor/InstructorAssignmentList";
+import StudentSubmissions from "./Student/StudentSubmissions";
 // import CreateAssignment from "./Instructor/createAssignment";
 
 function App() {
@@ -85,13 +87,12 @@ function App() {
         </Route>
 
         {/* Instructor  */}
-        <Route
-          element={<ProtectedRoute allowedRoles={["instructor", "admin"]} />}
-        >
+       <Route element={<ProtectedRoute allowedRoles={["instructor", "admin"]} />}>
           <Route path="/instructor-dashboard" element={<InstructorDashboard />}>
             <Route index element={<InstructorHome />} />
             <Route path="instructorHome" element={<InstructorHome />} />
             <Route path="createAssignment" element={<CreateAssignment />} />
+            <Route path="assignments" element={<InstructorAssignmentList />} />
             <Route path="instructorSubmissions/:assignmentId" element={<InstructorSubmissions />} />
           </Route>
         </Route>
@@ -107,6 +108,7 @@ function App() {
             <Route path="home" element={<StudentHome />} />
             <Route path="addTestimonial" element={<AddTestimonial />} />
             <Route path="studentAssignment" element={<StudentAssignments />} />
+            <Route path="studentSubmissions" element={<StudentSubmissions />} />
           </Route>
         </Route>
       </Routes>

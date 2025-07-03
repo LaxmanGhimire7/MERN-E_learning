@@ -63,8 +63,9 @@ function InstructorNavigation() {
             Create Assignment
           </NavLink>
 
+          {/* Changed this nav link */}
           <NavLink
-            to="instructorSubmissions"
+            to="assignments"
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 rounded-lg font-medium ${
                 isActive
@@ -73,7 +74,7 @@ function InstructorNavigation() {
               }`
             }
           >
-            Receive Assignments
+            Assignments
           </NavLink>
 
           <NavLink

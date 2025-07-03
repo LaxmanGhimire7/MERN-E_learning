@@ -1,5 +1,7 @@
 const AssignmentSubmission = require("../Model/assignmentSubmissionModel");
 const Assignment = require("../Model/assignmentModel");
+const mongoose = require("mongoose");
+
 
 
 const submitAssignment = async (req, res) => {
@@ -35,12 +37,28 @@ const submitAssignment = async (req, res) => {
   }
 };
 
+const getAssignmentsForInstructor = async (req, res) => {
+  try {
+    const instructorId = req.user._id || req.user.id;
+    console.log("Instructor ID from token:", instructorId);
+
+    const assignments = await Assignment.find({ instructorId }).populate("courseId", "name");
+    console.log("Assignments found:", assignments.length);
+
+    res.status(200).json({ assignments });
+  } catch (error) {
+    console.error("Error fetching instructor assignments:", error);
+    res.status(500).json({ msg: "Failed to fetch assignments" });
+  }
+};
 
 
-
+// backend controller
 const getStudentAssignments = async (req, res) => {
   try {
-    const studentId = req.user.id;
+    const studentId = new mongoose.Types.ObjectId(req.user.id);
+    console.log("Student ID:", studentId);
+    console.log("User from token:", req.user);
 
     const assignments = await Assignment.find({
       $or: [
@@ -49,6 +67,8 @@ const getStudentAssignments = async (req, res) => {
       ]
     }).populate("courseId", "name");
 
+    console.log("Fetched Assignments:", assignments);
+
     res.status(200).json({ status: 200, assignments });
   } catch (error) {
     console.error("Error fetching student assignments:", error);
@@ -56,11 +76,13 @@ const getStudentAssignments = async (req, res) => {
   }
 };
 
+
+
 const getStudentSubmissions = async (req, res) => {
   try {
     const studentId = req.user.id;
 
-    const submissions = await AssignmentSubmission.find({ studentId });
+    const submissions = await AssignmentSubmission.find({ studentId }).populate("assignmentId", "title dueDate");
 
     return res.status(200).json({ submissions });
   } catch (error) {
@@ -68,6 +90,7 @@ const getStudentSubmissions = async (req, res) => {
     res.status(500).json({ msg: "Failed to fetch submissions" });
   }
 };
+
 
 const getAllSubmissionsForInstructor = async (req, res) => {
   try {
@@ -106,5 +129,6 @@ module.exports = {
   getStudentAssignments,
   getAllSubmissionsForInstructor,
   gradeAssignment,
+  getAssignmentsForInstructor,
   getStudentSubmissions
 };
