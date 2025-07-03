@@ -78,6 +78,18 @@ function InstructorNavigation() {
           </NavLink>
 
           <NavLink
+  to="/instructor-dashboard/instructorAssignmentManager"
+  className={({ isActive }) =>
+    `block px-4 py-2 rounded hover:bg-blue-100 ${
+      isActive ? "bg-blue-200 font-semibold" : ""
+    }`
+  }
+>
+  📝 Manage Assignments
+</NavLink>
+
+
+          <NavLink
             to="/userProfile"
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 rounded-lg font-medium mt-6 ${

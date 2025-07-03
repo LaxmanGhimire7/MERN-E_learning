@@ -37,6 +37,7 @@ import StudentAssignments from "./Student/StudentAssignments";
 import InstructorSubmissions from "./Instructor/InstructorSubmissions";
 import InstructorAssignmentList from "./Instructor/InstructorAssignmentList";
 import StudentSubmissions from "./Student/StudentSubmissions";
+import InstructorAssignmentManager from "./Instructor/InstructorAssignmentManager";
 // import CreateAssignment from "./Instructor/createAssignment";
 
 function App() {
@@ -93,6 +94,7 @@ function App() {
             <Route path="instructorHome" element={<InstructorHome />} />
             <Route path="createAssignment" element={<CreateAssignment />} />
             <Route path="assignments" element={<InstructorAssignmentList />} />
+            <Route path="instructorAssignmentManager" element={<InstructorAssignmentManager />} />
             <Route path="instructorSubmissions/:assignmentId" element={<InstructorSubmissions />} />
           </Route>
         </Route>
