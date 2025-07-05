@@ -77,16 +77,7 @@ function InstructorNavigation() {
             Assignments
           </NavLink>
 
-          <NavLink
-  to="/instructor-dashboard/instructorAssignmentManager"
-  className={({ isActive }) =>
-    `block px-4 py-2 rounded hover:bg-blue-100 ${
-      isActive ? "bg-blue-200 font-semibold" : ""
-    }`
-  }
->
-  📝 Manage Assignments
-</NavLink>
+
 
 
           <NavLink

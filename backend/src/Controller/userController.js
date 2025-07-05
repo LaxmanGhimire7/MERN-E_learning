@@ -68,8 +68,11 @@ const login = async (req, res) => {
       return res.status(401).json({ msg: "Email or password is incorrect" });
     }
 
-    userDetail.lastLogin = new Date();
-    await userDetail.save();
+    await user.updateOne(
+  { _id: userDetail._id },
+  { $set: { lastLogin: new Date() } }
+);
+
 
     const token = jwt.sign({ id: userDetail._id }, process.env.secret_key, {
       expiresIn: "7d",
