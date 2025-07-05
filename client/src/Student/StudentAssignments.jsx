@@ -18,8 +18,6 @@ function StudentAssignments() {
           headers: { Authorization: `Bearer ${state.token}` },
         });
         const data = await res.json();
-        console.log("✅ Assignments fetched from backend:", data);
-
         if (!res.ok) throw new Error(data.msg || "Failed to load assignments");
         setAssignments(data.assignments || []);
       } catch (err) {
@@ -33,12 +31,11 @@ function StudentAssignments() {
           headers: { Authorization: `Bearer ${state.token}` },
         });
         const data = await res.json();
-        console.log("📄 Submissions fetched from backend: ", data);
         if (!res.ok) throw new Error(data.msg || "Failed to load submissions");
 
         const map = {};
         data.submissions.forEach((sub) => {
-          const id = sub.assignmentId._id || sub.assignmentId; // Normalized ID
+          const id = sub.assignmentId._id || sub.assignmentId;
           map[id] = sub;
         });
         setSubmissions(map);
@@ -92,6 +89,8 @@ function StudentAssignments() {
     }
   };
 
+  const isPastDue = (dueDate) => new Date(dueDate) < new Date();
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
 
@@ -102,12 +101,6 @@ function StudentAssignments() {
       {assignments.length === 0 && (
         <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4">
           <p>No assignments assigned yet.</p>
-          <details className="mt-2">
-            <summary className="cursor-pointer">Debug Info (Click to view JSON)</summary>
-            <pre className="text-sm mt-2 bg-gray-100 p-2 rounded overflow-x-auto">
-              {JSON.stringify(assignments, null, 2)}
-            </pre>
-          </details>
         </div>
       )}
 
@@ -115,6 +108,7 @@ function StudentAssignments() {
         const id = assignment._id || assignment.id;
         const submitted = submissions[id];
         const selectedFile = selectedFiles[id];
+        const pastDue = isPastDue(assignment.dueDate);
 
         return (
           <div key={id} className="border rounded-xl p-6 mb-6 shadow-md bg-white">
@@ -161,6 +155,8 @@ function StudentAssignments() {
                   </div>
                 )}
               </div>
+            ) : pastDue ? (
+              <div className="text-red-600 font-semibold">⛔ Submission time has ended</div>
             ) : (
               <div>
                 <label className="block mb-2 font-medium">Upload your submission:</label>

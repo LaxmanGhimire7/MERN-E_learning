@@ -1,26 +1,25 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../Context/AuthProvider";
+import { format } from "date-fns";
 
 function InstructorAssignmentList() {
   const { state } = useContext(AuthContext);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [editData, setEditData] = useState(null);
-  const [updating, setUpdating] = useState(false);
+  const [form, setForm] = useState({ title: "", description: "", dueDate: "" });
+  const [courseFilter, setCourseFilter] = useState("All");
 
   useEffect(() => {
     fetchAssignments();
   }, [state.token]);
 
   const fetchAssignments = async () => {
-    setLoading(true);
     try {
       const res = await fetch("http://localhost:9000/api/assignmentSubmission/instructor", {
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-        },
+        headers: { Authorization: `Bearer ${state.token}` },
       });
       const data = await res.json();
       if (res.ok) {
@@ -36,170 +35,161 @@ function InstructorAssignmentList() {
     }
   };
 
-  const openEditModal = (assignment) => {
-    setEditData(assignment);
+  const handleEditClick = (assignment) => {
+    setSelectedAssignment(assignment);
+    setForm({
+      title: assignment.title,
+      description: assignment.description,
+      dueDate: assignment.dueDate.split("T")[0],
+    });
     setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setEditData(null);
-  };
-
-  const handleChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    setEditData({ ...editData, attachment: e.target.files[0] });
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    setUpdating(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("title", editData.title);
-      formData.append("description", editData.description);
-      formData.append("dueDate", editData.dueDate);
-      formData.append("assignToAll", true);
-      if (editData.attachment instanceof File) {
-        formData.append("attachment", editData.attachment);
-      }
-
-      const res = await fetch(`http://localhost:9000/api/assignment/updateAssignment/${editData._id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-        },
-        body: formData,
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Assignment updated successfully");
-        fetchAssignments();
-        closeModal();
-      } else {
-        alert(data.msg || "Update failed");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Update error");
-    } finally {
-      setUpdating(false);
-    }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this assignment?")) return;
-
     try {
       const res = await fetch(`http://localhost:9000/api/assignment/deleteAssignment/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-        },
+        headers: { Authorization: `Bearer ${state.token}` },
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Deleted successfully");
+        alert("Assignment deleted");
         fetchAssignments();
       } else {
-        alert(data.msg || "Delete failed");
+        alert(data.msg);
       }
     } catch (err) {
       console.error(err);
-      alert("Delete error");
+      alert("Failed to delete");
     }
   };
+
+  const handleUpdate = async () => {
+    const formData = new FormData();
+    formData.append("title", form.title);
+    formData.append("description", form.description);
+    formData.append("dueDate", form.dueDate);
+
+    try {
+      const res = await fetch(
+        `http://localhost:9000/api/assignment/updateAssignment/${selectedAssignment._id}`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${state.token}` },
+          body: formData,
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        alert("Assignment updated");
+        setShowModal(false);
+        fetchAssignments();
+      } else {
+        alert(data.msg);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update");
+    }
+  };
+
+  const filteredAssignments = courseFilter === "All"
+    ? assignments
+    : assignments.filter(a => a.courseId.name === courseFilter);
+
+  const uniqueCourses = ["All", ...new Set(assignments.map(a => a.courseId.name))];
 
   if (loading) return <p>Loading assignments...</p>;
   if (assignments.length === 0) return <p>No assignments found.</p>;
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Your Assignments</h2>
-      <ul>
-        {assignments.map((assignment) => (
-          <li key={assignment._id} className="mb-4 border-b pb-2">
-            <div className="flex justify-between items-center">
-              <Link
-                to={`/instructor-dashboard/instructorSubmissions/${assignment._id}`}
-                className="text-blue-600 underline"
-              >
-                {assignment.title}
-              </Link>
-              <div className="space-x-2">
-                <button
-                  className="bg-yellow-400 px-2 py-1 rounded"
-                  onClick={() => openEditModal(assignment)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                  onClick={() => handleDelete(assignment._id)}
-                >
-                  Delete
-                </button>
+
+      <label className="block mb-4">
+        Filter by Course:
+        <select
+          className="ml-2 p-1 rounded border"
+          value={courseFilter}
+          onChange={(e) => setCourseFilter(e.target.value)}
+        >
+          {uniqueCourses.map(course => (
+            <option key={course} value={course}>{course}</option>
+          ))}
+        </select>
+      </label>
+
+      <ul className="space-y-4">
+        {filteredAssignments.map((assignment) => {
+          const isPastDue = new Date(assignment.dueDate) < new Date();
+          return (
+            <li key={assignment._id} className="border p-4 rounded shadow-sm">
+              <div className="flex justify-between items-center">
+                <div>
+                  <Link
+                    to={`/instructor-dashboard/instructorSubmissions/${assignment._id}`}
+                    className="text-blue-600 font-semibold text-lg"
+                  >
+                    {assignment.title}
+                  </Link>
+                  <p className="text-sm text-gray-600">Due: {format(new Date(assignment.dueDate), 'PPP')}</p>
+                  <p className="text-sm">Course: {assignment.courseId.name}</p>
+                  {isPastDue && <p className="text-red-600 font-semibold">Submission closed</p>}
+                </div>
+                <div className="space-x-2">
+                  <button
+                    onClick={() => handleEditClick(assignment)}
+                    className="bg-yellow-400 px-3 py-1 rounded text-white"
+                    disabled={isPastDue}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(assignment._id)}
+                    className="bg-red-500 px-3 py-1 rounded text-white"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
 
+      {/* Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-96">
             <h3 className="text-xl font-bold mb-4">Edit Assignment</h3>
-            <form onSubmit={handleUpdate}>
-              <input
-                type="text"
-                name="title"
-                placeholder="Title"
-                value={editData.title}
-                onChange={handleChange}
-                className="w-full p-2 border rounded mb-2"
-              />
-              <textarea
-                name="description"
-                placeholder="Description"
-                value={editData.description}
-                onChange={handleChange}
-                className="w-full p-2 border rounded mb-2"
-              />
-              <input
-                type="date"
-                name="dueDate"
-                value={editData.dueDate?.substring(0, 10)}
-                onChange={handleChange}
-                className="w-full p-2 border rounded mb-2"
-              />
-              <input
-                type="file"
-                name="attachment"
-                onChange={handleFileChange}
-                className="w-full p-2 border rounded mb-4"
-              />
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  className="bg-gray-400 text-white px-4 py-2 rounded"
-                  onClick={closeModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                  disabled={updating}
-                >
-                  {updating ? "Updating..." : "Update"}
-                </button>
-              </div>
-            </form>
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="w-full mb-2 p-2 border rounded"
+              placeholder="Title"
+            />
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full mb-2 p-2 border rounded"
+              placeholder="Description"
+            />
+            <input
+              type="date"
+              value={form.dueDate}
+              onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+              className="w-full mb-2 p-2 border rounded"
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowModal(false)} className="px-3 py-1 bg-gray-400 text-white rounded">
+                Cancel
+              </button>
+              <button onClick={handleUpdate} className="px-3 py-1 bg-blue-500 text-white rounded">
+                Update
+              </button>
+            </div>
           </div>
         </div>
       )}

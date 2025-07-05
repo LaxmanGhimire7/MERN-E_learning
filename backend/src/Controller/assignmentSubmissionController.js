@@ -1,7 +1,7 @@
 const AssignmentSubmission = require("../Model/assignmentSubmissionModel");
 const Assignment = require("../Model/assignmentModel");
 const mongoose = require("mongoose");
-
+const CourseOrder = require("../Model/courseOrderModel");
 
 
 const submitAssignment = async (req, res) => {
@@ -52,30 +52,40 @@ const getAssignmentsForInstructor = async (req, res) => {
   }
 };
 
-
-// backend controller
 const getStudentAssignments = async (req, res) => {
   try {
     const studentId = new mongoose.Types.ObjectId(req.user.id);
-    // console.log("Student ID:", studentId);
-    // console.log("User from token:", req.user);
 
+    // Find all active course orders for this student
+    const orders = await CourseOrder.find({
+      userId: studentId,
+      enrollmentStatus: "ACTIVE",
+    });
+
+    // Extract all enrolled courseIds from all orders (flatten array)
+    const enrolledCourseIds = orders
+      .flatMap(order => order.course.map(c => c.courseId.toString()))
+      .filter(Boolean);
+
+    if (enrolledCourseIds.length === 0) {
+      return res.status(200).json({ assignments: [] });
+    }
+
+    // Find assignments for those courses, assigned either to all or to this student
     const assignments = await Assignment.find({
+      courseId: { $in: enrolledCourseIds },
       $or: [
         { assignToAll: true },
         { assignTo: studentId }
-      ]
+      ],
     }).populate("courseId", "name");
 
-    // console.log("Fetched Assignments:", assignments);
-
-    res.status(200).json({ status: 200, assignments });
+    res.status(200).json({ assignments });
   } catch (error) {
     console.error("Error fetching student assignments:", error);
-    res.status(500).json({ status: 500, msg: "Failed to fetch assignments" });
+    res.status(500).json({ msg: "Failed to fetch assignments" });
   }
 };
-
 
 
 const getStudentSubmissions = async (req, res) => {

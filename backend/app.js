@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("./src/Scheduler/emailReminder.js");
 
 const express = require("express");
 const app = express();  
