@@ -32,48 +32,91 @@ function StudentHome() {
   }, []);
 
   return (
-    <div className="px-6 py-10 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold text-blue-900 mb-8 text-center">
-        👋 Welcome to Your Student Dashboard
+    <div className="min-h-screen bg-gradient-to-tr from-gray-100 to-white px-4 sm:px-10 py-12">
+      <h2 className="text-4xl font-extrabold text-blue-900 text-center mb-10">
+        🎓 Welcome to Your Student Dashboard
       </h2>
 
       {courses.length === 0 ? (
-        <div className="text-center bg-white p-6 rounded-lg shadow-md text-gray-600 max-w-md mx-auto">
-          <p className="text-lg font-medium">You are not enrolled in any courses yet.</p>
-          <p className="text-sm mt-2">Explore available courses and start learning today!</p>
+        <div className="max-w-lg mx-auto text-center bg-white shadow-md rounded-xl p-8">
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">No Courses Enrolled</h3>
+          <p className="text-sm text-gray-500">
+            Looks like you haven't enrolled in any courses yet. Start your learning journey today!
+          </p>
+          <a
+            href="/courses"
+            className="inline-block mt-6 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-5 rounded-md transition"
+          >
+            📚 Browse Courses
+          </a>
         </div>
       ) : (
-        <div className="flex flex-wrap justify-center gap-6">
+        <div className="flex flex-wrap justify-center gap-8">
           {courses.map((course) => (
             <div
               key={course._id}
-              className="w-[280px] bg-white rounded-xl shadow-md hover:shadow-lg transition p-5 flex flex-col justify-between"
+              className="w-full max-w-sm bg-white rounded-xl shadow-lg hover:shadow-xl transition-all flex flex-col"
             >
-              <div>
-                <h3 className="text-lg font-semibold text-blue-800 mb-2 line-clamp-2">
+              {/* Image */}
+              {course.image && (
+                <img
+                  src={`http://localhost:9000/image/${course.image}`}
+                  alt={course.name}
+                  className="w-full h-40 object-cover rounded-t-xl"
+                />
+              )}
+
+              <div className="p-5 flex flex-col flex-1">
+                {/* Course Title */}
+                <h3 className="text-xl font-semibold text-blue-800 mb-2 line-clamp-2">
                   {course.name}
                 </h3>
-                <p className="text-sm text-gray-600 mb-3">Progress: {course.progress}%</p>
+
+                {/* Progress Info */}
+                <p className="text-sm text-gray-500 mb-1">
+                  <span className="font-medium">Progress:</span> {course.progress}%
+                </p>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
                   <div
-                    className="bg-blue-600 h-2 rounded-full"
+                    className="h-full bg-blue-600 transition-all duration-500"
                     style={{ width: `${course.progress}%` }}
                   ></div>
                 </div>
-              </div>
 
-              {course.certificateUrl && (
-                <a
-                  href={course.certificateUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-auto inline-block text-center bg-green-500 hover:bg-green-600 text-white text-sm py-2 px-4 rounded transition"
-                >
-                  🎓 View Certificate
-                </a>
-              )}
+                {/* Enrollment Date (optional) */}
+                {course.enrolledDate && (
+                  <p className="text-xs text-gray-400 mb-4">
+                    Enrolled on: {new Date(course.enrolledDate).toLocaleDateString()}
+                  </p>
+                )}
+
+                {/* Buttons */}
+                <div className="mt-auto flex flex-col gap-2">
+                  <a
+                    href={`/courses/${course._id}`}
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium text-center py-2 px-4 rounded-md transition"
+                  >
+                    🚀 Continue Learning
+                  </a>
+
+                  {course.certificateUrl ? (
+                    <a
+                      href={course.certificateUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium text-center py-2 px-4 rounded-md transition"
+                    >
+                      🎖️ View Certificate
+                    </a>
+                  ) : (
+                    <span className="text-xs text-gray-400 text-center">
+                      Certificate not available
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
         </div>

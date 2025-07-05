@@ -1,5 +1,19 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../Context/AuthProvider";
+import {
+  FaBook,
+  FaFileUpload,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaClock,
+  FaPaperclip,
+  FaCommentDots,
+  FaFileAlt,
+  FaGraduationCap,
+  FaSpinner, // Added for a better loading indicator on buttons
+  FaExclamationTriangle, // For error messages
+} from "react-icons/fa";
+import { toast } from "react-toastify";
 
 function StudentAssignments() {
   const { state } = useContext(AuthContext);
@@ -10,10 +24,23 @@ function StudentAssignments() {
   const [uploading, setUploading] = useState({});
   const [selectedFiles, setSelectedFiles] = useState({});
 
+  // Helper to format dates nicely
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const isPastDue = (dueDate) => new Date(dueDate) < new Date();
+
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
-        setError(null);
         const res = await fetch("http://localhost:9000/api/assignmentSubmission/student", {
           headers: { Authorization: `Bearer ${state.token}` },
         });
@@ -22,6 +49,7 @@ function StudentAssignments() {
         setAssignments(data.assignments || []);
       } catch (err) {
         setError(err.message);
+        toast.error(`Error loading assignments: ${err.message}`);
       }
     };
 
@@ -40,7 +68,7 @@ function StudentAssignments() {
         });
         setSubmissions(map);
       } catch (err) {
-        console.error(err);
+        toast.error("❌ Failed to fetch submissions.");
       } finally {
         setLoading(false);
       }
@@ -57,9 +85,18 @@ function StudentAssignments() {
   const handleSubmit = async (assignmentId, courseId) => {
     const file = selectedFiles[assignmentId];
     if (!file) {
-      alert("Please select a file before submitting.");
+      toast.warn("⚠️ Please select a file before submitting.");
       return;
     }
+
+    // Add a file size limit check
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File size exceeds 5MB limit. Please upload a smaller file.");
+      setSelectedFiles((prev) => ({ ...prev, [assignmentId]: null })); // Clear selected file
+      return;
+    }
+
     setUploading((prev) => ({ ...prev, [assignmentId]: true }));
 
     const formData = new FormData();
@@ -74,114 +111,181 @@ function StudentAssignments() {
         body: formData,
       });
       const data = await res.json();
+
       if (res.ok) {
-        alert("✅ Assignment submitted successfully");
+        toast.success("✅ Assignment submitted successfully!");
         setSubmissions((prev) => ({ ...prev, [assignmentId]: data.submission }));
-        setSelectedFiles((prev) => ({ ...prev, [assignmentId]: null }));
+        setSelectedFiles((prev) => ({ ...prev, [assignmentId]: null })); // Clear selected file after successful upload
       } else {
-        alert(data.msg || "Submission failed");
+        toast.error(data.msg || "❌ Submission failed");
       }
-    } catch (error) {
-      console.error("❌ Submission error:", error);
-      alert("Submission error, please try again");
+    } catch (err) {
+      console.error("Submission error:", err); // Log the full error for debugging
+      toast.error("❌ Server error while submitting. Please try again.");
     } finally {
       setUploading((prev) => ({ ...prev, [assignmentId]: false }));
     }
   };
 
-  const isPastDue = (dueDate) => new Date(dueDate) < new Date();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <FaSpinner className="animate-spin text-blue-500 text-6xl" />
+        <p className="ml-4 text-xl text-gray-700">Loading assignments...</p>
+      </div>
+    );
+  }
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+        <FaExclamationTriangle className="text-red-500 text-6xl mb-4" />
+        <h2 className="text-2xl font-bold text-red-700 mb-2">Error Loading Data</h2>
+        <p className="text-gray-600 text-lg text-center">{error}</p>
+        <p className="text-gray-500 mt-4">Please try refreshing the page.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6">Your Assignments</h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-12">
+      <h2 className="text-5xl font-extrabold text-center text-blue-900 mb-12 drop-shadow-sm flex items-center justify-center gap-4">
+        <FaGraduationCap className="text-blue-700" /> Student Assignments
+      </h2>
 
-      {assignments.length === 0 && (
-        <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4">
-          <p>No assignments assigned yet.</p>
+      {assignments.length === 0 ? (
+        <div className="bg-white text-blue-700 p-8 rounded-xl shadow-lg text-center max-w-xl mx-auto border-t-4 border-blue-400">
+          <FaBook className="inline-block mr-3 text-3xl" />
+          <span className="text-xl font-medium">No assignments available at the moment. Check back later!</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {assignments.map((assignment) => {
+            const id = assignment._id || assignment.id;
+            const submitted = submissions[id];
+            const selectedFile = selectedFiles[id];
+            const pastDue = isPastDue(assignment.dueDate);
+
+            const statusColor = submitted
+              ? "bg-green-500"
+              : pastDue
+              ? "bg-red-500"
+              : "bg-yellow-500";
+            const statusText = submitted ? "Submitted" : pastDue ? "Overdue" : "Pending";
+            const statusIcon = submitted ? (
+              <FaCheckCircle />
+            ) : pastDue ? (
+              <FaTimesCircle />
+            ) : (
+              <FaClock />
+            );
+
+            return (
+              <div
+                key={id}
+                className="flex flex-col bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-b-4 border-blue-400"
+              >
+                <div className="p-6 flex-grow">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                      <FaBook className="text-blue-600" /> {assignment.title}
+                    </h3>
+                    <span
+                      className={`text-sm px-4 py-2 rounded-full font-bold text-white flex items-center gap-2 ${statusColor}`}
+                    >
+                      {statusIcon} {statusText}
+                    </span>
+                  </div>
+
+                  <p className="text-md text-blue-700 mb-3 font-semibold flex items-center gap-2">
+                    <FaGraduationCap className="text-blue-500" />{" "}
+                    {assignment.courseId?.name || "Unknown Course"}
+                  </p>
+
+                  <p className="text-sm text-gray-600 mb-4 flex items-center gap-2">
+                    <FaClock className="text-gray-500" />
+                    <span className="font-medium">Due:</span> {formatDate(assignment.dueDate)}
+                  </p>
+
+                  <p className="text-base text-gray-700 mb-6 leading-relaxed">
+                    {assignment.description || "No description provided for this assignment."}
+                  </p>
+
+                  {submitted ? (
+                    <div className="bg-green-50 border border-green-200 p-5 rounded-lg text-green-800 text-base shadow-inner">
+                      <p className="mb-3 flex items-center gap-2">
+                        <FaPaperclip className="text-green-600 text-lg" /> Submitted File:{" "}
+                        <a
+                          href={`http://localhost:9000/assignment/${submitted.file}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline text-blue-700 hover:text-blue-900 font-medium transition-colors"
+                        >
+                          View Submission
+                        </a>
+                      </p>
+                      {submitted.feedback && (
+                        <p className="mb-3 flex items-center gap-2">
+                          <FaCommentDots className="text-green-600 text-lg" /> Feedback:{" "}
+                          <span className="font-semibold">{submitted.feedback}</span>
+                        </p>
+                      )}
+                      <p className="flex items-center gap-2">
+                        <FaFileAlt className="text-green-600 text-lg" /> Grade:{" "}
+                        <span className="font-bold text-lg">
+                          {submitted.grade ? `${submitted.grade}%` : "Not graded yet"}
+                        </span>
+                      </p>
+                    </div>
+                  ) : pastDue ? (
+                    <div className="bg-red-50 border border-red-200 p-5 rounded-lg text-red-700 text-base shadow-inner flex items-center gap-3 font-semibold">
+                      <FaTimesCircle className="text-red-600 text-2xl" />
+                      You missed the submission deadline.
+                    </div>
+                  ) : (
+                    <div className="pt-4">
+                      <label htmlFor={`file-upload-${id}`} className="block mb-3 font-medium text-base text-gray-700 cursor-pointer">
+                        <FaFileUpload className="inline mr-2 text-blue-600" /> Upload your assignment file (.pdf, .doc, .docx):
+                      </label>
+                      <input
+                        id={`file-upload-${id}`}
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => handleFileChange(id, e.target.files[0])}
+                        className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-200 cursor-pointer mb-3"
+                      />
+                      {selectedFile && (
+                        <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
+                          <FaPaperclip /> Selected: <span className="font-medium">{selectedFile.name}</span>
+                        </p>
+                      )}
+                      <button
+                        onClick={() => handleSubmit(id, assignment.courseId?._id)}
+                       
+                        className={`w-full py-3 rounded-lg text-white font-bold text-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-3 ${
+                          uploading[id] || !selectedFile
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-blue-600 hover:bg-blue-700 transform hover:scale-105"
+                        }`}
+                      >
+                        {uploading[id] ? (
+                          <>
+                            <FaSpinner className="animate-spin" /> Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <FaCheckCircle /> Submit Assignment
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
-
-      {assignments.map((assignment) => {
-        const id = assignment._id || assignment.id;
-        const submitted = submissions[id];
-        const selectedFile = selectedFiles[id];
-        const pastDue = isPastDue(assignment.dueDate);
-
-        return (
-          <div key={id} className="border rounded-xl p-6 mb-6 shadow-md bg-white">
-            <h3 className="text-xl font-semibold mb-1">{assignment.title || "Untitled Assignment"}</h3>
-            <p className="text-gray-600 mb-1">
-              Course:{" "}
-              <span className="font-medium">
-                {assignment.courseId?.name || assignment.courseId?._id || "N/A"}
-              </span>
-            </p>
-            <p className="text-gray-600 mb-2">
-              Due Date:{" "}
-              {assignment.dueDate
-                ? new Date(assignment.dueDate).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
-                : "Not specified"}
-            </p>
-            <p className="mb-4">{assignment.description || "No description provided."}</p>
-
-            {submitted ? (
-              <div className="text-green-700">
-                <p>
-                  ✅ Submitted:{" "}
-                  <a
-                    href={`http://localhost:9000/assignment/${submitted.file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-blue-700"
-                  >
-                    View Submitted File
-                  </a>
-                </p>
-                {submitted.feedback && (
-                  <div className="mt-2 bg-gray-100 p-3 rounded">
-                    <p>
-                      <strong>Feedback:</strong> {submitted.feedback}
-                    </p>
-                    <p>
-                      <strong>Grade:</strong> {submitted.grade ?? "Not graded yet"}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : pastDue ? (
-              <div className="text-red-600 font-semibold">⛔ Submission time has ended</div>
-            ) : (
-              <div>
-                <label className="block mb-2 font-medium">Upload your submission:</label>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => handleFileChange(id, e.target.files[0])}
-                  className="border rounded p-2 w-full mb-3"
-                />
-                <button
-                  disabled={uploading[id]}
-                  onClick={() => handleSubmit(id, assignment.courseId?._id)}
-                  className={`px-4 py-2 rounded font-semibold text-white ${
-                    uploading[id]
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  }`}
-                >
-                  {uploading[id] ? "Submitting..." : "Submit Assignment"}
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      })}
     </div>
   );
 }

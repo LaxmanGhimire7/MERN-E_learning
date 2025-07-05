@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 
 
 function UserProfile() {
+  
   const navigate = useNavigate();
   const { user, state, dispatch } = useContext(AuthContext);
 
