@@ -61,7 +61,7 @@ cron.schedule("*/10 * * * *", async () => {
           <p>Hi ${student.firstName || "Student"},</p>
           <p>This is a reminder that your assignment <strong>"${assignment.title}"</strong> is due on <strong>${dueDate.toLocaleString()}</strong>.</p>
           <p>Make sure to submit it before the deadline.</p>
-          <p>Thanks,<br/>E-Learning Platform</p>
+          <p>Thanks,<br/>SipalayInfoTech</p>
         `,
       });
     }

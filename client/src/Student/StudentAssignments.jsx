@@ -10,8 +10,8 @@ import {
   FaCommentDots,
   FaFileAlt,
   FaGraduationCap,
-  FaSpinner, // Added for a better loading indicator on buttons
-  FaExclamationTriangle, // For error messages
+  FaSpinner,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -24,10 +24,9 @@ function StudentAssignments() {
   const [uploading, setUploading] = useState({});
   const [selectedFiles, setSelectedFiles] = useState({});
 
-  // Helper to format dates nicely
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -89,11 +88,10 @@ function StudentAssignments() {
       return;
     }
 
-    // Add a file size limit check
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
-      toast.error("File size exceeds 5MB limit. Please upload a smaller file.");
-      setSelectedFiles((prev) => ({ ...prev, [assignmentId]: null })); // Clear selected file
+      toast.error("File size exceeds 5MB limit.");
+      setSelectedFiles((prev) => ({ ...prev, [assignmentId]: null }));
       return;
     }
 
@@ -115,13 +113,12 @@ function StudentAssignments() {
       if (res.ok) {
         toast.success("✅ Assignment submitted successfully!");
         setSubmissions((prev) => ({ ...prev, [assignmentId]: data.submission }));
-        setSelectedFiles((prev) => ({ ...prev, [assignmentId]: null })); // Clear selected file after successful upload
+        setSelectedFiles((prev) => ({ ...prev, [assignmentId]: null }));
       } else {
         toast.error(data.msg || "❌ Submission failed");
       }
     } catch (err) {
-      console.error("Submission error:", err); // Log the full error for debugging
-      toast.error("❌ Server error while submitting. Please try again.");
+      toast.error("❌ Server error while submitting.");
     } finally {
       setUploading((prev) => ({ ...prev, [assignmentId]: false }));
     }
@@ -147,58 +144,46 @@ function StudentAssignments() {
     );
   }
 
+  const filteredAssignments = assignments.filter((a) => !isPastDue(a.dueDate));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-12">
       <h2 className="text-5xl font-extrabold text-center text-blue-900 mb-12 drop-shadow-sm flex items-center justify-center gap-4">
         <FaGraduationCap className="text-blue-700" /> Student Assignments
       </h2>
 
-      {assignments.length === 0 ? (
+      {filteredAssignments.length === 0 ? (
         <div className="bg-white text-blue-700 p-8 rounded-xl shadow-lg text-center max-w-xl mx-auto border-t-4 border-blue-400">
           <FaBook className="inline-block mr-3 text-3xl" />
           <span className="text-xl font-medium">No assignments available at the moment. Check back later!</span>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {assignments.map((assignment) => {
-            const id = assignment._id || assignment.id;
+          {filteredAssignments.map((assignment) => {
+            const id = assignment._id;
             const submitted = submissions[id];
             const selectedFile = selectedFiles[id];
-            const pastDue = isPastDue(assignment.dueDate);
 
             const statusColor = submitted
               ? "bg-green-500"
-              : pastDue
-              ? "bg-red-500"
               : "bg-yellow-500";
-            const statusText = submitted ? "Submitted" : pastDue ? "Overdue" : "Pending";
-            const statusIcon = submitted ? (
-              <FaCheckCircle />
-            ) : pastDue ? (
-              <FaTimesCircle />
-            ) : (
-              <FaClock />
-            );
+            const statusText = submitted ? "Submitted" : "Pending";
+            const statusIcon = submitted ? <FaCheckCircle /> : <FaClock />;
 
             return (
-              <div
-                key={id}
-                className="flex flex-col bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-b-4 border-blue-400"
-              >
+              <div key={id} className="flex flex-col bg-white rounded-3xl shadow-xl border-b-4 border-blue-400 overflow-hidden">
                 <div className="p-6 flex-grow">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                       <FaBook className="text-blue-600" /> {assignment.title}
                     </h3>
-                    <span
-                      className={`text-sm px-4 py-2 rounded-full font-bold text-white flex items-center gap-2 ${statusColor}`}
-                    >
+                    <span className={`text-sm px-4 py-2 rounded-full font-bold text-white flex items-center gap-2 ${statusColor}`}>
                       {statusIcon} {statusText}
                     </span>
                   </div>
 
                   <p className="text-md text-blue-700 mb-3 font-semibold flex items-center gap-2">
-                    <FaGraduationCap className="text-blue-500" />{" "}
+                    <FaGraduationCap className="text-blue-500" />
                     {assignment.courseId?.name || "Unknown Course"}
                   </p>
 
@@ -214,7 +199,8 @@ function StudentAssignments() {
                   {submitted ? (
                     <div className="bg-green-50 border border-green-200 p-5 rounded-lg text-green-800 text-base shadow-inner">
                       <p className="mb-3 flex items-center gap-2">
-                        <FaPaperclip className="text-green-600 text-lg" /> Submitted File:{" "}
+                        <FaPaperclip className="text-green-600 text-lg" />
+                        Submitted File:{" "}
                         <a
                           href={`http://localhost:9000/assignment/${submitted.file}`}
                           target="_blank"
@@ -237,15 +223,10 @@ function StudentAssignments() {
                         </span>
                       </p>
                     </div>
-                  ) : pastDue ? (
-                    <div className="bg-red-50 border border-red-200 p-5 rounded-lg text-red-700 text-base shadow-inner flex items-center gap-3 font-semibold">
-                      <FaTimesCircle className="text-red-600 text-2xl" />
-                      You missed the submission deadline.
-                    </div>
                   ) : (
                     <div className="pt-4">
                       <label htmlFor={`file-upload-${id}`} className="block mb-3 font-medium text-base text-gray-700 cursor-pointer">
-                        <FaFileUpload className="inline mr-2 text-blue-600" /> Upload your assignment file (.pdf, .doc, .docx):
+                        <FaFileUpload className="inline mr-2 text-blue-600" /> Upload your assignment file:
                       </label>
                       <input
                         id={`file-upload-${id}`}
@@ -261,7 +242,6 @@ function StudentAssignments() {
                       )}
                       <button
                         onClick={() => handleSubmit(id, assignment.courseId?._id)}
-                       
                         className={`w-full py-3 rounded-lg text-white font-bold text-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-3 ${
                           uploading[id] || !selectedFile
                             ? "bg-gray-400 cursor-not-allowed"
