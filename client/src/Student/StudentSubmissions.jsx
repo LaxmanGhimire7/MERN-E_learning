@@ -32,7 +32,7 @@ function StudentSubmissions() {
 
   if (loading) return <p className="text-center mt-10 text-gray-600">Loading your submissions...</p>;
   if (error) return <p className="text-center mt-10 text-red-600">Error: {error}</p>;
-  if (submissions.length === 0) return <p className="text-center mt-10 text-gray-600">You have no submissions yet.</p>;
+  if (submissions.length === 0) return <p className="text-center mt-10 ml-16 text-gray-600">You have no submissions yet.</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">

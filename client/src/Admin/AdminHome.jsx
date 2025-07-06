@@ -8,6 +8,7 @@ import {
   FaTrashAlt,
   FaChartPie,
   FaChartLine,
+  FaEye
 } from "react-icons/fa";
 import {
   Chart as ChartJS,
@@ -21,6 +22,7 @@ import {
   Title,
 } from "chart.js";
 import { Pie, Line } from "react-chartjs-2";
+import { NavLink } from "react-router-dom";
 
 ChartJS.register(
   ArcElement,
@@ -39,15 +41,12 @@ function AdminHome() {
   const [usersCount, setUsersCount] = useState(0);
   const [coursesCount, setCoursesCount] = useState(0);
   const [messagesCount, setMessagesCount] = useState(0);
-
-  // Stats for charts
-  const [userStats, setUserStats] = useState([]); // [{month:'2025-01', count: 10}]
-  const [courseStats, setCourseStats] = useState([]); // [{month:'2025-01', count: 5}]
+  const [userStats, setUserStats] = useState([]);
+  const [courseStats, setCourseStats] = useState([]);
   const [messageStatus, setMessageStatus] = useState({ read: 0, unread: 0 });
 
   const { state } = useContext(AuthContext);
 
-  // Fetch courses
   const getCourses = async () => {
     try {
       let res = await fetch("http://localhost:9000/api/course/getAllCourse");
@@ -55,13 +54,11 @@ function AdminHome() {
       const latest = data.response.slice(-5).reverse();
       setLatestCourses(latest);
       setCoursesCount(data.response.length);
-      // Optional: calculate categories or active courses here for charts
     } catch (err) {
       console.error(err);
     }
   };
 
-  // Fetch contacts
   const getContacts = async () => {
     try {
       let response = await fetch("http://localhost:9000/api/contact/getAllContacts");
@@ -70,8 +67,6 @@ function AdminHome() {
       const msgs = data.response || data.contacts || data || [];
       setContacts(msgs);
       setMessagesCount(msgs.length);
-
-      // Count read vs unread assuming contacts have 'read' boolean field
       const readCount = msgs.filter((m) => m.read).length;
       setMessageStatus({ read: readCount, unread: msgs.length - readCount });
     } catch (error) {
@@ -80,14 +75,12 @@ function AdminHome() {
     }
   };
 
-  // Fetch user stats for line chart
   const getUserStats = async () => {
     try {
       let res = await fetch("http://localhost:9000/api/user/stats");
       if (!res.ok) throw new Error("Failed to fetch user stats");
       let data = await res.json();
       setUserStats(data.stats || []);
-      // Also total user count for card
       const totalUsers = data.stats.reduce((acc, cur) => acc + cur.count, 0);
       setUsersCount(totalUsers);
     } catch (err) {
@@ -95,7 +88,6 @@ function AdminHome() {
     }
   };
 
-  // Fetch course stats for line chart
   const getCourseStats = async () => {
     try {
       let res = await fetch("http://localhost:9000/api/course/stats");
@@ -130,7 +122,6 @@ function AdminHome() {
     getCourseStats();
   }, []);
 
-  // Pie chart for message read/unread
   const pieData = {
     labels: ["Read Messages", "Unread Messages"],
     datasets: [
@@ -142,7 +133,6 @@ function AdminHome() {
     ],
   };
 
-  // Line chart for user registrations
   const lineUserData = {
     labels: userStats.map((item) => item.month),
     datasets: [
@@ -157,7 +147,6 @@ function AdminHome() {
     ],
   };
 
-  // Line chart for course additions
   const lineCourseData = {
     labels: courseStats.map((item) => item.month),
     datasets: [
@@ -173,173 +162,124 @@ function AdminHome() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Dashboard Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-        <p className="text-gray-600">Welcome back, Admin!</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
+      {/* Header */}
+      <div className="mb-10">
+        <h1 className="text-4xl font-bold text-gray-800">Admin Dashboard</h1>
+        <p className="text-gray-600">Insight into your platform’s performance</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 flex items-center gap-4">
-          <FaBookOpen className="h-8 w-8 text-blue-500" />
-          <div>
-            <p className="text-gray-500">Total Courses</p>
-            <p className="text-2xl font-semibold">{coursesCount}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        {[{
+          icon: <FaBookOpen className="text-blue-500" />, label: "Total Courses", count: coursesCount, color: "blue"
+        }, {
+          icon: <FaEnvelope className="text-green-500" />, label: "Messages", count: messagesCount, color: "green"
+        }, {
+          icon: <FaUsers className="text-purple-500" />, label: "Active Users", count: usersCount, color: "purple"
+        }, {
+          icon: <FaChartPie className="text-yellow-500" />, label: "Unread Messages", count: messageStatus.unread, color: "yellow"
+        }].map(({ icon, label, count, color }, i) => (
+          <div
+            key={i}
+            className={`bg-white shadow-xl p-6 rounded-xl border-l-8 border-${color}-500 flex gap-4 items-center`}
+          >
+            <div className="text-3xl">{icon}</div>
+            <div>
+              <p className="text-gray-500 text-sm">{label}</p>
+              <p className="text-xl font-bold">{count}</p>
+            </div>
           </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500 flex items-center gap-4">
-          <FaEnvelope className="h-8 w-8 text-green-500" />
-          <div>
-            <p className="text-gray-500">Messages</p>
-            <p className="text-2xl font-semibold">{messagesCount}</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500 flex items-center gap-4">
-          <FaUsers className="h-8 w-8 text-purple-500" />
-          <div>
-            <p className="text-gray-500">Active Users</p>
-            <p className="text-2xl font-semibold">{usersCount}</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500 flex items-center gap-4">
-          <FaChartPie className="h-8 w-8 text-yellow-500" />
-          <div>
-            <p className="text-gray-500">Unread Messages</p>
-            <p className="text-2xl font-semibold">{messageStatus.unread}</p>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        {/* Pie Chart */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <FaChartPie /> Message Status Distribution
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <FaChartPie /> Message Distribution
           </h3>
           <Pie data={pieData} />
         </div>
 
-        {/* User Registrations Line Chart */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <FaChartLine /> New Users (Monthly)
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <FaChartLine /> User Growth
           </h3>
           <Line data={lineUserData} />
         </div>
 
-        {/* Course Additions Line Chart */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <FaChartLine /> New Courses (Monthly)
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <FaChartLine /> Course Additions
           </h3>
           <Line data={lineCourseData} />
         </div>
       </div>
 
-      {/* Main Grid: Latest Courses + Contact Messages */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recently Added Courses */}
+      {/* Latest Courses & Messages */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* Courses */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-800">Recently Added Courses</h3>
+          <div className="px-6 py-4 border-b">
+            <h3 className="text-lg font-bold text-gray-800">Latest Courses</h3>
           </div>
-          <div className="p-4">
-            {latestCourses.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">No courses available</div>
-            ) : (
-              <ul className="space-y-4">
-                {latestCourses.map((course) => (
-                  <li
-                    key={course._id}
-                    className="flex space-x-4 p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white"
-                  >
-                    <div className="w-28 h-28 overflow-hidden rounded-lg border border-gray-200">
-                      <img
-                        src={`http://localhost:9000/image/${course.image}`}
-                        alt={course.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <h4 className="text-lg font-semibold text-gray-800">{course.name}</h4>
-                        <span className="text-blue-600 font-bold">Rs {course.discountPrice}</span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">Instructor: {course.instructor}</p>
-                      <div className="mt-2 flex gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {course.category || "General"}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {course.level || "All Levels"}
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="bg-gray-50 px-6 py-3 text-right">
-            <a
-              href="/admin/courses"
-              className="text-sm font-medium text-blue-600 hover:text-blue-500"
-            >
-              View all courses →
-            </a>
+          <ul className="p-4 space-y-4">
+            {latestCourses.length ? latestCourses.map((course) => (
+              <li key={course._id} className="flex items-start gap-4 border rounded-md p-3">
+                <img
+                  src={`http://localhost:9000/image/${course.image}`}
+                  alt={course.name}
+                  className="w-20 h-20 rounded object-cover border"
+                />
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <h4 className="font-semibold text-gray-700">{course.name}</h4>
+                    <span className="text-blue-600 font-bold">Rs {course.discountPrice}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Instructor: {course.instructor}</p>
+                  <div className="mt-1 flex gap-2 text-xs">
+                    <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{course.category}</span>
+                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{course.level}</span>
+                  </div>
+                </div>
+              </li>
+            )) : <p className="text-center text-sm text-gray-500">No recent courses</p>}
+          </ul>
+          <div className="border-t px-6 py-3 text-right bg-gray-50">
+            <NavLink to="/admin/courses" className="text-blue-600 text-sm hover:underline">
+              View all courses <FaEye className="inline ml-1" />
+            </NavLink>
           </div>
         </div>
 
-        {/* Contact Messages */}
+        {/* Messages */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-800">Recent Messages</h3>
+          <div className="px-6 py-4 border-b">
+            <h3 className="text-lg font-bold text-gray-800">Latest Messages</h3>
           </div>
-          <div className="p-4">
-            {contacts.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">No messages available</div>
-            ) : (
-              <ul className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                {contacts.map(({ _id, fullName, email, course, message, phone }) => (
-                  <li
-                    key={_id}
-                    className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+          <ul className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
+            {contacts.length ? contacts.map(({ _id, fullName, email, course, message, phone }) => (
+              <li key={_id} className="border rounded-md p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-semibold text-gray-800">{fullName}</h4>
+                    <p className="text-sm text-gray-600">{email} | {phone}</p>
+                  </div>
+                  <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs">{course}</span>
+                </div>
+                <p className="mt-2 text-gray-700 text-sm bg-gray-50 p-2 rounded-md whitespace-pre-wrap">{message}</p>
+                <div className="text-right mt-2">
+                  <button
+                    onClick={() => deleteContact(_id)}
+                    className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
                   >
-                    <div className="flex justify-between">
-                      <div>
-                        <h4 className="font-medium text-gray-900">{fullName}</h4>
-                        <p className="text-sm text-gray-600">{email}</p>
-                        <p className="text-sm text-gray-600">Number: {phone}</p>
-                      </div>
-                      <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                        {course || "General Inquiry"}
-                      </span>
-                    </div>
-                    <div className="mt-3">
-                      <p className="text-gray-700 text-sm whitespace-pre-wrap bg-gray-50 p-3 rounded-md">
-                        {message}
-                      </p>
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                      <button
-                        onClick={() => deleteContact(_id)}
-                        className="flex items-center text-sm text-red-600 hover:text-red-800 transition-colors"
-                      >
-                        <FaTrashAlt className="h-4 w-4 mr-1" />
-                        Delete
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                    <FaTrashAlt /> Delete
+                  </button>
+                </div>
+              </li>
+            )) : <p className="text-sm text-gray-500 text-center">No messages available</p>}
+          </ul>
         </div>
       </div>
     </div>

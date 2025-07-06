@@ -67,7 +67,7 @@ function StudentAssignments() {
         });
         setSubmissions(map);
       } catch (err) {
-        toast.error("❌ Failed to fetch submissions.");
+        toast.error("\u274C Failed to fetch submissions.");
       } finally {
         setLoading(false);
       }
@@ -84,7 +84,7 @@ function StudentAssignments() {
   const handleSubmit = async (assignmentId, courseId) => {
     const file = selectedFiles[assignmentId];
     if (!file) {
-      toast.warn("⚠️ Please select a file before submitting.");
+      toast.warn("\u26A0\uFE0F Please select a file before submitting.");
       return;
     }
 
@@ -111,14 +111,14 @@ function StudentAssignments() {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("✅ Assignment submitted successfully!");
+        toast.success("\u2705 Assignment submitted successfully!");
         setSubmissions((prev) => ({ ...prev, [assignmentId]: data.submission }));
         setSelectedFiles((prev) => ({ ...prev, [assignmentId]: null }));
       } else {
-        toast.error(data.msg || "❌ Submission failed");
+        toast.error(data.msg || "Submission failed");
       }
     } catch (err) {
-      toast.error("❌ Server error while submitting.");
+      toast.error("Server error while submitting.");
     } finally {
       setUploading((prev) => ({ ...prev, [assignmentId]: false }));
     }
@@ -126,20 +126,20 @@ function StudentAssignments() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <FaSpinner className="animate-spin text-blue-500 text-6xl" />
-        <p className="ml-4 text-xl text-gray-700">Loading assignments...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+        <FaSpinner className="animate-spin text-blue-600 text-7xl mb-6" />
+        <p className="text-xl font-semibold text-blue-800">Loading assignments...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-        <FaExclamationTriangle className="text-red-500 text-6xl mb-4" />
-        <h2 className="text-2xl font-bold text-red-700 mb-2">Error Loading Data</h2>
-        <p className="text-gray-600 text-lg text-center">{error}</p>
-        <p className="text-gray-500 mt-4">Please try refreshing the page.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 p-6">
+        <FaExclamationTriangle className="text-red-600 text-7xl mb-4" />
+        <h2 className="text-3xl font-extrabold text-red-700 mb-3">Error Loading Data</h2>
+        <p className="text-red-600 text-lg max-w-md text-center">{error}</p>
+        <p className="text-red-400 mt-5">Please try refreshing the page.</p>
       </div>
     );
   }
@@ -147,105 +147,110 @@ function StudentAssignments() {
   const filteredAssignments = assignments.filter((a) => !isPastDue(a.dueDate));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-12">
-      <h2 className="text-5xl font-extrabold text-center text-blue-900 mb-12 drop-shadow-sm flex items-center justify-center gap-4">
+    <div className="min-h-screen ml-44 px-4 sm:px-6 py-14">
+      <h2 className="text-4xl font-extrabold text-center text-blue-900 mb-12 flex items-center justify-center gap-4">
         <FaGraduationCap className="text-blue-700" /> Student Assignments
       </h2>
 
       {filteredAssignments.length === 0 ? (
-        <div className="bg-white text-blue-700 p-8 rounded-xl shadow-lg text-center max-w-xl mx-auto border-t-4 border-blue-400">
-          <FaBook className="inline-block mr-3 text-3xl" />
-          <span className="text-xl font-medium">No assignments available at the moment. Check back later!</span>
+        <div className="bg-white text-blue-700 p-10 rounded-xl shadow-lg text-center max-w-xl mx-auto border-t-4 border-blue-400">
+          <FaBook className="inline-block mr-4 text-4xl" />
+          <span className="text-2xl font-semibold">
+            No assignments available at the moment. Check back later!
+          </span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="flex flex-wrap justify-center gap-8 max-w-7xl mx-auto">
           {filteredAssignments.map((assignment) => {
             const id = assignment._id;
             const submitted = submissions[id];
             const selectedFile = selectedFiles[id];
 
             const statusColor = submitted
-              ? "bg-green-500"
-              : "bg-yellow-500";
+              ? "bg-green-500 shadow-green-400/70"
+              : "bg-yellow-500 shadow-yellow-400/70";
             const statusText = submitted ? "Submitted" : "Pending";
             const statusIcon = submitted ? <FaCheckCircle /> : <FaClock />;
 
             return (
-              <div key={id} className="flex flex-col bg-white rounded-3xl shadow-xl border-b-4 border-blue-400 overflow-hidden">
-                <div className="p-6 flex-grow">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <div
+                key={id}
+                className="flex flex-col w-full sm:w-[500px] bg-white rounded-2xl shadow-lg border-b-4 border-blue-400 overflow-hidden hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className="p-6 flex-grow flex flex-col">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                       <FaBook className="text-blue-600" /> {assignment.title}
                     </h3>
-                    <span className={`text-sm px-4 py-2 rounded-full font-bold text-white flex items-center gap-2 ${statusColor}`}>
+                    <span
+                      className={`text-sm px-4 py-1 rounded-full font-semibold text-white flex items-center gap-1 shadow-md ${statusColor}`}
+                    >
                       {statusIcon} {statusText}
                     </span>
                   </div>
 
-                  <p className="text-md text-blue-700 mb-3 font-semibold flex items-center gap-2">
+                  <p className="text-sm text-blue-700 mb-2 font-semibold flex items-center gap-2">
                     <FaGraduationCap className="text-blue-500" />
                     {assignment.courseId?.name || "Unknown Course"}
                   </p>
 
-                  <p className="text-sm text-gray-600 mb-4 flex items-center gap-2">
-                    <FaClock className="text-gray-500" />
-                    <span className="font-medium">Due:</span> {formatDate(assignment.dueDate)}
+                  <p className="text-xs text-gray-500 mb-4 flex items-center gap-2">
+                    <FaClock /> Due: {formatDate(assignment.dueDate)}
                   </p>
 
-                  <p className="text-base text-gray-700 mb-6 leading-relaxed">
-                    {assignment.description || "No description provided for this assignment."}
+                  <p className="text-sm text-gray-700 mb-6 flex-grow">
+                    {assignment.description || "No description provided."}
                   </p>
 
                   {submitted ? (
-                    <div className="bg-green-50 border border-green-200 p-5 rounded-lg text-green-800 text-base shadow-inner">
-                      <p className="mb-3 flex items-center gap-2">
-                        <FaPaperclip className="text-green-600 text-lg" />
-                        Submitted File:{" "}
+                    <div className="bg-green-50 border border-green-300 p-4 rounded-lg text-green-900 text-sm shadow-inner">
+                      <p className="mb-2 flex items-center gap-2">
+                        <FaPaperclip className="text-green-600" /> Submitted File: {" "}
                         <a
                           href={`http://localhost:9000/assignment/${submitted.file}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline text-blue-700 hover:text-blue-900 font-medium transition-colors"
+                          className="underline text-blue-700 hover:text-blue-900 font-medium"
                         >
-                          View Submission
+                          View
                         </a>
                       </p>
                       {submitted.feedback && (
-                        <p className="mb-3 flex items-center gap-2">
-                          <FaCommentDots className="text-green-600 text-lg" /> Feedback:{" "}
-                          <span className="font-semibold">{submitted.feedback}</span>
+                        <p className="mb-2 flex items-center gap-2">
+                          <FaCommentDots className="text-green-600" /> Feedback: {submitted.feedback}
                         </p>
                       )}
                       <p className="flex items-center gap-2">
-                        <FaFileAlt className="text-green-600 text-lg" /> Grade:{" "}
-                        <span className="font-bold text-lg">
+                        <FaFileAlt className="text-green-600" /> Grade: {" "}
+                        <span className="font-semibold">
                           {submitted.grade ? `${submitted.grade}%` : "Not graded yet"}
                         </span>
                       </p>
                     </div>
                   ) : (
-                    <div className="pt-4">
-                      <label htmlFor={`file-upload-${id}`} className="block mb-3 font-medium text-base text-gray-700 cursor-pointer">
-                        <FaFileUpload className="inline mr-2 text-blue-600" /> Upload your assignment file:
+                    <div>
+                      <label htmlFor={`file-upload-${id}`} className="block text-sm font-semibold text-gray-700 mb-2">
+                        <FaFileUpload className="inline mr-1 text-blue-600" /> Upload your assignment:
                       </label>
                       <input
                         id={`file-upload-${id}`}
                         type="file"
                         accept=".pdf,.doc,.docx"
                         onChange={(e) => handleFileChange(id, e.target.files[0])}
-                        className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-200 cursor-pointer mb-3"
+                        className="mb-3 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
                       {selectedFile && (
-                        <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
+                        <p className="text-xs text-gray-600 mb-3 flex items-center gap-2">
                           <FaPaperclip /> Selected: <span className="font-medium">{selectedFile.name}</span>
                         </p>
                       )}
                       <button
                         onClick={() => handleSubmit(id, assignment.courseId?._id)}
-                        className={`w-full py-3 rounded-lg text-white font-bold text-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-3 ${
+                        disabled={uploading[id] || !selectedFile}
+                        className={`w-full py-2 rounded-md text-white font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
                           uploading[id] || !selectedFile
                             ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700 transform hover:scale-105"
+                            : "bg-blue-600 hover:bg-blue-700 hover:scale-[1.02]"
                         }`}
                       >
                         {uploading[id] ? (
@@ -254,7 +259,7 @@ function StudentAssignments() {
                           </>
                         ) : (
                           <>
-                            <FaCheckCircle /> Submit Assignment
+                            <FaCheckCircle /> Submit
                           </>
                         )}
                       </button>

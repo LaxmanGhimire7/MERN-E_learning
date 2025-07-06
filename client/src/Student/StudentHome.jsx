@@ -1,116 +1,118 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthProvider";
-import { FaGraduationCap, FaBookOpen, FaPlayCircle, FaAward } from "react-icons/fa";
+import {
+  FaGraduationCap,
+  FaBookOpen,
+  FaPlayCircle,
+  FaAward,
+} from "react-icons/fa";
 
 function StudentHome() {
   const { state } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const getStudentInfo = async () => {
-    try {
-      const res = await fetch("http://localhost:9000/api/student/getStudentDashboard", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${state.token}`,
-        },
-      });
-
-      if (!res.ok) {
-        console.error("Failed to fetch dashboard", res.status);
-        setLoading(false);
-        return;
-      }
-
-      const data = await res.json();
-      setCourses(data.enrolledCourses || []);
-    } catch (err) {
-      console.error("Error fetching student dashboard:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const getStudentInfo = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9000/api/student/getStudentDashboard",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${state.token}`,
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch dashboard");
+
+        const data = await res.json();
+        setCourses(data.enrolledCourses || []);
+      } catch (err) {
+        console.error("Error fetching dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     getStudentInfo();
-  }, []);
+  }, [state.token]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-blue-600 text-xl font-semibold animate-pulse">Loading your courses...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-blue-600 text-lg animate-pulse font-semibold">
+          Loading your courses...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-gray-100 to-white px-6 sm:px-12 py-16">
-      <h2 className="text-4xl font-extrabold text-blue-900 text-center mb-12 select-none flex items-center justify-center gap-3">
-        <FaGraduationCap className="text-blue-700" /> Welcome to Your Student Dashboard
-      </h2>
+    <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 px-6 py-16">
+      <section className="text-center mb-12">
+        <h1 className="text-4xl font-extrabold text-blue-900 flex justify-center items-center gap-3">
+          <FaGraduationCap className="text-blue-700" /> Welcome to Your Student Dashboard
+        </h1>
+      </section>
 
       {courses.length === 0 ? (
-        <section className="max-w-md mx-auto bg-white shadow-lg rounded-xl p-8 text-center">
-          <h3 className="text-2xl font-semibold text-gray-700 mb-3 flex items-center justify-center gap-2">
+        <section className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg text-center">
+          <h2 className="text-2xl font-bold text-gray-700 flex items-center justify-center gap-2 mb-3">
             No Courses Enrolled <FaBookOpen className="text-gray-500" />
-          </h3>
-          <p className="text-gray-500 mb-6 leading-relaxed">
-            Looks like you haven't enrolled in any courses yet. Start your learning journey today!
+          </h2>
+          <p className="text-gray-500 mb-6">
+            You haven't enrolled in any courses yet. Start your learning journey today!
           </p>
           <a
             href="/courses"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-base py-3 px-7 rounded-lg transition-shadow shadow-md hover:shadow-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Browse courses"
+            className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition shadow-md"
           >
-            <FaBookOpen className="inline mr-2" /> Browse Courses
+            <FaBookOpen /> Browse Courses
           </a>
         </section>
       ) : (
-        <div className="flex flex-wrap justify-center gap-10">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {courses.map((course) => (
             <article
               key={course._id}
-              className="w-full max-w-sm bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col"
-              aria-label={`Course: ${course.name}`}
+              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden flex flex-col"
             >
               {course.image && (
                 <img
                   src={`http://localhost:9000/image/${course.image}`}
                   alt={course.name}
-                  className="w-full h-44 object-cover rounded-t-2xl"
-                  loading="lazy"
+                  className="w-full h-44 object-cover"
                 />
               )}
 
               <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-semibold text-blue-900 mb-3 line-clamp-2">{course.name}</h3>
+                <h3 className="text-lg font-bold text-blue-900 mb-2 line-clamp-2">
+                  {course.name}
+                </h3>
 
-                <div className="mb-3">
-                  <p className="text-sm text-gray-600 font-medium mb-1">Progress:</p>
-                  <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div className="mb-4">
+                  <label className="text-sm text-gray-600 font-medium">Progress:</label>
+                  <div className="w-full h-3 bg-gray-200 rounded-full mt-1">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-blue-700 transition-all duration-700"
+                      className="h-full bg-blue-600 rounded-full transition-all duration-500"
                       style={{ width: `${course.progress}%` }}
-                      aria-valuenow={course.progress}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      role="progressbar"
                     ></div>
                   </div>
-                  <p className="text-right text-xs text-gray-500 mt-1 font-mono">{course.progress}% completed</p>
+                  <p className="text-xs text-right text-gray-500 mt-1">
+                    {course.progress}% completed
+                  </p>
                 </div>
 
-                {course.enrolledDate && (
-                  <p className="text-xs text-gray-400 mb-6 italic">
-                    Enrolled on: {new Date(course.enrolledDate).toLocaleDateString()}
-                  </p>
-                )}
+                <p className="text-xs text-gray-400 italic mb-6">
+                  Enrolled on: {new Date(course.enrolledDate).toLocaleDateString()}
+                </p>
 
                 <div className="mt-auto flex flex-col gap-3">
                   <a
                     href={`/courses/${course._id}`}
-                    className=" bg-blue-600 hover:bg-blue-700 text-white text-center text-sm font-semibold py-3 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 flex justify-center items-center gap-2"
-                    aria-label={`Continue learning course ${course.name}`}
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
                   >
                     <FaPlayCircle /> Continue Learning
                   </a>
@@ -120,13 +122,12 @@ function StudentHome() {
                       href={course.certificateUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className=" bg-green-600 hover:bg-green-700 text-white text-center text-sm font-semibold py-3 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 flex justify-center items-center gap-2"
-                      aria-label={`View certificate for course ${course.name}`}
+                      className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
                     >
                       <FaAward /> View Certificate
                     </a>
                   ) : (
-                    <p className="text-center text-xs text-gray-400 italic select-none">
+                    <p className="text-center text-xs text-gray-400 italic">
                       Certificate not available yet
                     </p>
                   )}
@@ -134,9 +135,9 @@ function StudentHome() {
               </div>
             </article>
           ))}
-        </div>
+        </section>
       )}
-    </div>
+    </main>
   );
 }
 

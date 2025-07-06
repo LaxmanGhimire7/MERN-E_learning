@@ -7,12 +7,12 @@ function CreateAssignment() {
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [courseId, setCourseId] = useState("");
-  const [assignToAll, setAssignToAll] = useState(true);
+  const [assignToAll, setAssignToAll] = useState(false);
   const [attachment, setAttachment] = useState(null);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [fetchAllCourses, setFetchAllCourses] = useState(false);
+  const [fetchAllCourses, setFetchAllCourses] = useState(true);
   const [enrolledStudents, setEnrolledStudents] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -89,7 +89,6 @@ function CreateAssignment() {
     formData.append("courseId", courseId);
     formData.append("assignToAll", assignToAll);
 
-    // ✅ Append assignTo array if assignToAll is false
     if (!assignToAll) {
       enrolledStudents.forEach((student) => {
         formData.append("assignTo[]", student._id);
@@ -127,79 +126,84 @@ function CreateAssignment() {
   };
 
   return (
-    <div className="flex justify-center py-10 bg-gray-50 min-h-screen">
+    <div className="min-h-screen ml-36 flex items-center justify-center p-8">
       <form
         onSubmit={submitForm}
-        className="bg-white shadow-xl rounded-xl p-8 w-full max-w-3xl flex flex-col gap-6"
+        className="bg-white max-w-3xl w-full rounded-3xl shadow-xl p-10 flex flex-col gap-8 border border-gray-200"
       >
-        <h2 className="text-2xl font-semibold text-gray-800 text-center">
+        <h2 className="text-3xl font-extrabold text-center text-blue-900 mb-6 select-none">
           Create Assignment
         </h2>
 
         {/* Toggle for showing all courses */}
-        <label className="flex items-center space-x-3 self-start">
+        <label className="inline-flex items-center space-x-3 self-start text-gray-700 font-semibold cursor-pointer select-none">
           <input
             type="checkbox"
             checked={fetchAllCourses}
             onChange={() => setFetchAllCourses((prev) => !prev)}
-            className="form-checkbox h-5 w-5 text-blue-600"
+            className="form-checkbox h-6 w-6 text-blue-600 rounded focus:ring-2 focus:ring-blue-400"
           />
-          <span className="text-sm text-gray-700">
-            Show all courses (not just mine)
-          </span>
+          <span>Show all courses</span>
         </label>
 
-        {error && <p className="text-red-600 text-center font-medium">{error}</p>}
-        {loading && <p className="text-gray-500 text-center">Loading courses...</p>}
+        {error && (
+          <p className="text-red-600 text-center font-medium bg-red-100 p-2 rounded select-none">
+            {error}
+          </p>
+        )}
+        {loading && (
+          <p className="text-gray-500 text-center italic select-none">Loading courses...</p>
+        )}
 
         {/* Title and Due Date */}
         <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1">
-            <label className="font-semibold text-gray-700">Title *</label>
+          <div className="flex-1 flex flex-col">
+            <label className="mb-2 font-semibold text-gray-800 select-none">Title *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              placeholder="Enter assignment title"
               required
             />
           </div>
-          <div className="flex-1">
-            <label className="font-semibold text-gray-700">Due Date *</label>
+          <div className="flex-1 flex flex-col">
+            <label className="mb-2 font-semibold text-gray-800 select-none">Due Date *</label>
             <input
               type="datetime-local"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               required
             />
           </div>
         </div>
 
         {/* Description */}
-        <div>
-          <label className="font-semibold text-gray-700">Description</label>
+        <div className="flex flex-col">
+          <label className="mb-2 font-semibold text-gray-800 select-none">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full mt-1 px-4 py-3 border rounded-lg resize-none min-h-[100px]"
-            placeholder="Enter assignment description"
+            className="border border-gray-300 rounded-lg px-4 py-3 resize-none min-h-[110px] focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            placeholder="Enter assignment description (optional)"
           />
         </div>
 
         {/* Course selection and assignToAll checkbox */}
-        <div className="flex flex-col md:flex-row gap-6 items-center">
-          <div className="w-full">
-            <label className="font-semibold text-gray-700">
-              Select Course *
-            </label>
+        <div className="flex flex-col md:flex-row md:items-center gap-6">
+          <div className="flex-1 flex flex-col">
+            <label className="mb-2 font-semibold text-gray-800 select-none">Select Course *</label>
             <select
               value={courseId}
               onChange={(e) => setCourseId(e.target.value)}
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               required
             >
-              <option value="">-- Select Course --</option>
+              <option value="" disabled>
+                -- Select Course --
+              </option>
               {courses.map((c) => (
                 <option key={c._id} value={c._id}>
                   {c.name}
@@ -208,52 +212,52 @@ function CreateAssignment() {
             </select>
           </div>
 
-          <label className="flex items-center space-x-2 mt-2 md:mt-7">
+          <label className="inline-flex items-center space-x-3 text-gray-700 font-semibold select-none cursor-pointer">
             <input
               type="checkbox"
               checked={assignToAll}
               onChange={(e) => setAssignToAll(e.target.checked)}
-              className="form-checkbox h-5 w-5 text-blue-600"
+              className="form-checkbox h-6 w-6 text-blue-600 rounded focus:ring-2 focus:ring-blue-400"
             />
-            <span className="text-gray-700 font-medium">
-              Assign to all enrolled students
-            </span>
+            <span>Assign to all enrolled students</span>
           </label>
         </div>
 
         {/* Enrolled student preview */}
         {!assignToAll && enrolledStudents.length > 0 && (
-          <div className="bg-gray-100 p-4 rounded">
-            <h3 className="font-semibold mb-2 text-sm text-gray-700">
+          <div className="bg-blue-50 border border-blue-300 p-4 rounded-lg max-h-44 overflow-y-auto">
+            <h3 className="font-semibold mb-2 text-blue-800 select-none">
               Enrolled Students ({enrolledStudents.length}):
             </h3>
-            <ul className="list-disc list-inside text-gray-600 text-sm space-y-1">
+            <ul className="list-disc list-inside text-blue-700 text-sm space-y-1">
               {enrolledStudents.map((student) => (
-                <li key={student._id}>{student.name} ({student.email})</li>
+                <li key={student._id}>
+                  {student.name} <span className="text-gray-400 text-xs">({student.email})</span>
+                </li>
               ))}
             </ul>
           </div>
         )}
 
         {!assignToAll && courseId && enrolledStudents.length === 0 && (
-          <p className="text-yellow-600 font-medium text-sm">
+          <p className="text-yellow-700 font-semibold text-sm select-none">
             ⚠️ No enrolled students in the selected course.
           </p>
         )}
 
         {/* Attachment input */}
-        <div>
-          <label className="font-semibold text-gray-700">
+        <div className="flex flex-col">
+          <label className="mb-2 font-semibold text-gray-800 select-none">
             Attachment (PDF / DOC / DOCX)
           </label>
           <input
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={(e) => setAttachment(e.target.files[0])}
-            className="w-full mt-1 px-4 py-3 border rounded-lg"
+            className="border border-gray-300 rounded-lg px-4 py-3 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           />
           {attachment && (
-            <p className="text-sm mt-2 text-gray-600">
+            <p className="text-sm mt-2 text-gray-600 select-text">
               📎 <strong>{attachment.name}</strong> ({(attachment.size / 1024).toFixed(1)} KB)
             </p>
           )}
@@ -263,11 +267,11 @@ function CreateAssignment() {
         <button
           type="submit"
           disabled={loading || submitting}
-          className={`w-full py-3 mt-2 rounded-lg text-white font-semibold transition ${
+          className={`w-full py-3 rounded-lg text-white font-semibold transition duration-300 ${
             loading || submitting
               ? "bg-blue-300 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
-          }`}
+          } shadow-lg hover:shadow-xl`}
         >
           {submitting ? "Creating..." : "Create Assignment"}
         </button>
