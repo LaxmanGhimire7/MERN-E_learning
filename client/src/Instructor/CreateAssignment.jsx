@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../Context/AuthProvider";
+import { toast } from "react-toastify";
 
 function CreateAssignment() {
   const { state } = useContext(AuthContext);
@@ -16,7 +17,7 @@ function CreateAssignment() {
   const [enrolledStudents, setEnrolledStudents] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch courses (all or instructor's)
+
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -110,7 +111,7 @@ function CreateAssignment() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.msg || "Something went wrong");
 
-      alert("✅ Assignment created successfully!");
+      toast.success(" Assignment created successfully!");
       setTitle("");
       setDescription("");
       setDueDate("");
@@ -119,7 +120,7 @@ function CreateAssignment() {
       setAttachment(null);
       setEnrolledStudents([]);
     } catch (err) {
-      alert("❌ " + err.message);
+      alert(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -135,7 +136,7 @@ function CreateAssignment() {
           Create Assignment
         </h2>
 
-        {/* Toggle for showing all courses */}
+        
         <label className="inline-flex items-center space-x-3 self-start text-gray-700 font-semibold cursor-pointer select-none">
           <input
             type="checkbox"
@@ -241,7 +242,7 @@ function CreateAssignment() {
 
         {!assignToAll && courseId && enrolledStudents.length === 0 && (
           <p className="text-yellow-700 font-semibold text-sm select-none">
-            ⚠️ No enrolled students in the selected course.
+           No enrolled students in the selected course.
           </p>
         )}
 

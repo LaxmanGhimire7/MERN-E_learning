@@ -1,7 +1,7 @@
 const user = require("../Model/userModel");
 const bcrypt = require("bcrypt");
-
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 const register = async (req, res) => {
   let { firstName, lastName, userName, email, password } = req.body;
@@ -141,15 +141,45 @@ const forgotPassword = async (req, res) => {
 
   try {
     const existUser = await user.findOne({ email });
+
     if (!existUser) {
-      res.status(404).json({ status: 400, msg: "User Not Found" });
+      return res.status(404).json({ status: 404, msg: "User not found" });
     }
 
-    const secret = jwt + existUser.password;
-    const token = jwt.sign();
-    console.log(secret);
-  } catch (error) {}
+    const secret = process.env.secret_key + existUser.password;
+    const token = jwt.sign({ id: existUser._id }, secret, { expiresIn: "15m" });
+
+    const resetLink = `http://localhost:3000/reset-password/${existUser._id}/${token}`;
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"LMS Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Password Reset Request",
+      html: `
+        <p>Hello ${existUser.firstName},</p>
+        <p>You requested a password reset. Click the link below to reset your password:</p>
+        <a href="${resetLink}" style="color: blue;">Reset Password</a>
+        <p>This link will expire in 15 minutes.</p>
+        <p>If you didn’t request this, you can ignore this email.</p>
+      `,
+    });
+
+    res.status(200).json({ status: 200, msg: "Reset link sent to email." });
+  } catch (error) {
+    console.error("Error in forgot password:", error);
+    res.status(500).json({ status: 500, msg: "Server Error", error });
+  }
 };
+
+
 
 const deleteUser = async (req, res) => {
   let { id } = req.params;

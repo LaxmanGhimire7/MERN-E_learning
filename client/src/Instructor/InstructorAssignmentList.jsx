@@ -4,6 +4,15 @@ import { AuthContext } from "../Context/AuthProvider";
 import { format } from "date-fns";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  FaEdit,
+  FaTrash,
+  FaFilter,
+  FaCalendarAlt,
+  FaBook,
+  FaChevronRight,
+  FaTimes,
+} from "react-icons/fa";
 
 function InstructorAssignmentList() {
   const { state } = useContext(AuthContext);
@@ -13,6 +22,8 @@ function InstructorAssignmentList() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", dueDate: "" });
   const [courseFilter, setCourseFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All"); // NEW status filter
+  const [expandedAssignment, setExpandedAssignment] = useState(null);
 
   useEffect(() => {
     fetchAssignments();
@@ -20,17 +31,17 @@ function InstructorAssignmentList() {
 
   const fetchAssignments = async () => {
     try {
-      const res = await fetch("http://localhost:9000/api/assignmentSubmission/instructor", {
-        headers: { Authorization: `Bearer ${state.token}` },
-      });
+      setLoading(true);
+      const res = await fetch(
+        "http://localhost:9000/api/assignmentSubmission/instructor",
+        {
+          headers: { Authorization: `Bearer ${state.token}` },
+        }
+      );
       const data = await res.json();
-      if (res.ok) {
-        setAssignments(data.assignments || []);
-      } else {
-        toast.error(data.msg || "Failed to load assignments");
-      }
+      if (res.ok) setAssignments(data.assignments || []);
+      else toast.error(data.msg || "Failed to load assignments");
     } catch (err) {
-      console.error(err);
       toast.error("Error fetching assignments");
     } finally {
       setLoading(false);
@@ -50,19 +61,19 @@ function InstructorAssignmentList() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this assignment?")) return;
     try {
-      const res = await fetch(`http://localhost:9000/api/assignment/deleteAssignment/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${state.token}` },
-      });
+      const res = await fetch(
+        `http://localhost:9000/api/assignment/deleteAssignment/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${state.token}` },
+        }
+      );
       const data = await res.json();
       if (res.ok) {
-        toast.success("Assignment deleted");
+        toast.success("Assignment deleted successfully");
         fetchAssignments();
-      } else {
-        toast.error(data.msg);
-      }
+      } else toast.error(data.msg);
     } catch (err) {
-      console.error(err);
       toast.error("Failed to delete assignment");
     }
   };
@@ -84,153 +95,352 @@ function InstructorAssignmentList() {
       );
       const data = await res.json();
       if (res.ok) {
-        toast.success("Assignment updated");
+        toast.success("Assignment updated successfully");
         setShowModal(false);
         fetchAssignments();
-      } else {
-        toast.error(data.msg);
-      }
+      } else toast.error(data.msg);
     } catch (err) {
-      console.error(err);
       toast.error("Failed to update assignment");
     }
   };
 
-  const filteredAssignments =
-    courseFilter === "All"
-      ? assignments
-      : assignments.filter((a) => a.courseId.name === courseFilter);
+  const filteredAssignments = assignments.filter((a) => {
+    const courseMatch = courseFilter === "All" || a.courseId.name === courseFilter;
+    const now = new Date();
+    let statusMatch = true;
+    if (statusFilter === "Active") {
+      statusMatch = new Date(a.dueDate) > now;
+    } else if (statusFilter === "Finished") {
+      statusMatch = new Date(a.dueDate) <= now;
+    }
+    return courseMatch && statusMatch;
+  });
 
   const uniqueCourses = ["All", ...new Set(assignments.map((a) => a.courseId.name))];
 
-  if (loading)
+  const toggleAssignment = (id) => {
+    if (expandedAssignment === id) {
+      setExpandedAssignment(null);
+    } else {
+      setExpandedAssignment(id);
+    }
+  };
+
+  if (loading) {
     return (
-      <p className="p-6 text-center text-gray-500 text-lg select-none">Loading assignments...</p>
+      <div className="min-h-screen flex items-center justify-center ">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading assignments...</p>
+        </div>
+      </div>
     );
-  if (assignments.length === 0)
-    return (
-      <p className="p-6 text-center text-gray-600 select-none">No assignments found.</p>
-    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <ToastContainer position="top-right" autoClose={3000} />
-      <h2 className="text-3xl font-bold mb-6 text-center text-indigo-900 select-none">
-        Your Assignments
-      </h2>
+    <div className="min-h-screen ml-24 py-8 px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto">
+        <ToastContainer position="top-right" autoClose={3000} />
 
-      <label className="block mb-6 text-gray-700 font-semibold select-none">
-        Filter by Course:
-        <select
-          className="ml-3 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          value={courseFilter}
-          onChange={(e) => setCourseFilter(e.target.value)}
-        >
-          {uniqueCourses.map((course) => (
-            <option key={course} value={course}>
-              {course}
-            </option>
-          ))}
-        </select>
-      </label>
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Assignment Management
+          </h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Manage and track assignments for your courses
+          </p>
+        </div>
 
-      <ul className="space-y-5">
-        {filteredAssignments.map((assignment) => {
-          const isPastDue = new Date(assignment.dueDate) < new Date();
-          return (
-            <li
-              key={assignment._id}
-              className="border rounded-lg p-5 shadow hover:shadow-lg transition cursor-pointer bg-white"
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <Link
-                    to={`/instructor-dashboard/instructorSubmissions/${assignment._id}`}
-                    className="text-indigo-700 font-semibold text-xl hover:underline"
-                  >
-                    {assignment.title}
-                  </Link>
-                  <p className="text-sm text-gray-600 select-none">
-                    Due: {format(new Date(assignment.dueDate), "PPP")}
-                  </p>
-                  <p className="text-sm select-none">Course: {assignment.courseId.name}</p>
-                  {isPastDue && (
-                    <p className="text-red-600 font-semibold select-none">Submission closed</p>
-                  )}
-                </div>
-                <div className="space-x-3 flex-shrink-0">
-                  <button
-                    onClick={() => handleEditClick(assignment)}
-                    className={`px-4 py-2 rounded-md text-white transition ${
-                      isPastDue
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-yellow-400 hover:bg-yellow-500"
-                    }`}
-                    disabled={isPastDue}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(assignment._id)}
-                    className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+        {/* Stats */}
+        <div className="flex flex-wrap gap-6 mb-8 justify-center">
+          <div className="flex-1 min-w-[220px] bg-white rounded-xl shadow p-6 border-l-4 border-indigo-500 flex items-center gap-4">
+            <div className="bg-indigo-100 p-3 rounded-lg">
+              <FaBook className="text-indigo-600 text-xl" />
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm">Total Assignments</p>
+              <p className="text-2xl font-bold">{assignments.length}</p>
+            </div>
+          </div>
 
-      {/* Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-blue bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-96 shadow-xl">
-            <h3 className="text-xl font-bold mb-4 text-indigo-900 select-none">Edit Assignment</h3>
+          <div className="flex-1 min-w-[220px] bg-white rounded-xl shadow p-6 border-l-4 border-blue-500 flex items-center gap-4">
+            <div className="bg-blue-100 p-3 rounded-lg">
+              <FaCalendarAlt className="text-blue-600 text-xl" />
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm">Active Assignments</p>
+              <p className="text-2xl font-bold">
+                {assignments.filter((a) => new Date(a.dueDate) > new Date()).length}
+              </p>
+            </div>
+          </div>
 
-            <label className="block mb-2 font-semibold select-none">Title</label>
-            <input
-              type="text"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="w-full mb-4 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              placeholder="Title"
-            />
+          <div className="flex-1 min-w-[220px] bg-white rounded-xl shadow p-6 border-l-4 border-green-500 flex items-center gap-4">
+            <div className="bg-green-100 p-3 rounded-lg">
+              <FaBook className="text-green-600 text-xl" />
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm">Courses</p>
+              <p className="text-2xl font-bold">{uniqueCourses.length - 1}</p>
+            </div>
+          </div>
 
-            <label className="block mb-2 font-semibold select-none">Description</label>
-            <textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full mb-4 p-2 border rounded resize-none min-h-[80px] focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              placeholder="Description"
-            />
-
-            <label className="block mb-2 font-semibold select-none">Due Date</label>
-            <input
-              type="date"
-              value={form.dueDate}
-              onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-              className="w-full mb-6 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            />
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdate}
-                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-              >
-                Update
-              </button>
+          <div className="flex-1 min-w-[220px] bg-white rounded-xl shadow p-6 border-l-4 border-purple-500 flex items-center gap-4">
+            <div className="bg-purple-100 p-3 rounded-lg">
+              <FaFilter className="text-purple-600 text-xl" />
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm">Filtered</p>
+              <p className="text-2xl font-bold">{filteredAssignments.length}</p>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Filters (Course + Status) */}
+        <div className="flex flex-col sm:flex-row justify-start sm:justify-between items-start sm:items-center mb-6 bg-white p-4 rounded-xl shadow gap-4">
+          <div className="w-full sm:w-auto">
+            <label className="block text-gray-700 font-medium mb-1">
+              Filter by Course:
+            </label>
+            <div className="relative max-w-xs">
+              <select
+                className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                value={courseFilter}
+                onChange={(e) => setCourseFilter(e.target.value)}
+              >
+                {uniqueCourses.map((course) => (
+                  <option key={course} value={course}>
+                    {course}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute left-3 top-3 text-gray-500">
+                <FaFilter />
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full sm:w-auto">
+            <label className="block text-gray-700 font-medium mb-1">
+              Filter by Status:
+            </label>
+            <div className="relative max-w-xs">
+              <select
+                className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="Active">Active</option>
+                <option value="Finished">Finished</option>
+              </select>
+              <div className="absolute left-3 top-3 text-gray-500">
+                <FaCalendarAlt />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Assignments List */}
+        {filteredAssignments.length === 0 ? (
+          <div className="bg-white rounded-xl shadow p-12 text-center">
+            <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              No Assignments Found
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Create your first assignment to get started
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filteredAssignments.map((assignment) => {
+              const isPastDue = new Date(assignment.dueDate) < new Date();
+              const isExpanded = expandedAssignment === assignment._id;
+
+              return (
+                <div
+                  key={assignment._id}
+                  className={`bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden ${
+                    isExpanded ? "border-l-4 border-indigo-500" : ""
+                  }`}
+                >
+                  <div
+                    className="p-5 cursor-pointer"
+                    onClick={() => toggleAssignment(assignment._id)}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-start">
+                          <div className="bg-indigo-100 p-2 rounded-lg mr-4">
+                            <FaBook className="text-indigo-600" />
+                          </div>
+                          <div>
+                            <div className="flex items-center flex-wrap gap-2 mb-1">
+                              <Link
+                                to={`/instructor-dashboard/instructorSubmissions/${assignment._id}`}
+                                className="text-gray-900 font-semibold text-lg hover:text-indigo-700"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {assignment.title}
+                              </Link>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {assignment.courseId.name}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mt-2">
+                              <div className="flex items-center">
+                                <FaCalendarAlt className="mr-1.5 text-gray-500" />
+                                <span>
+                                  Due: {format(new Date(assignment.dueDate), "PPP 'at' p")}
+                                </span>
+                              </div>
+                              {isPastDue && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                  Submission closed
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 justify-end">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClick(assignment);
+                          }}
+                          disabled={isPastDue}
+                          className={`px-4 py-2 rounded-lg font-medium transition flex items-center ${
+                            isPastDue
+                              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                              : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                          }`}
+                        >
+                          <FaEdit className="mr-1.5" /> Edit
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(assignment._id);
+                          }}
+                          className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 font-medium transition flex items-center"
+                        >
+                          <FaTrash className="mr-1.5" /> Delete
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-center mt-3">
+                      <FaChevronRight
+                        className={`text-gray-400 transition-transform duration-300 ${
+                          isExpanded ? "rotate-90" : ""
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Expanded Content */}
+                  {isExpanded && (
+                    <div className="border-t border-gray-100 p-5 bg-gray-50">
+                      <div className="mb-4">
+                        <h4 className="font-medium text-gray-700 mb-2">Description</h4>
+                        <p className="text-gray-600 whitespace-pre-wrap">
+                          {assignment.description || "No description provided"}
+                        </p>
+                      </div>
+
+                      <div className="flex justify-end">
+                        <Link
+                          to={`/instructor-dashboard/instructorSubmissions/${assignment._id}`}
+                          className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
+                        >
+                          View submissions <FaChevronRight className="ml-1 text-xs" />
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl transform transition-all">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">Edit Assignment</h3>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-1">Title</label>
+                    <input
+                      type="text"
+                      value={form.title}
+                      onChange={(e) => setForm({ ...form, title: e.target.value })}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      placeholder="Assignment title"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      value={form.description}
+                      onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      className="w-full p-3 border border-gray-300 rounded-lg resize-none min-h-[120px] focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      placeholder="Assignment description"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-1">Due Date</label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={form.dueDate}
+                        onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+                        className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      />
+                      <FaCalendarAlt className="absolute left-3 top-3.5 text-gray-500" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-6">
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdate}
+                    className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+                  >
+                    Update Assignment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

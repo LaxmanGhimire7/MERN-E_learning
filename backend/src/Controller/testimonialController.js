@@ -31,14 +31,14 @@ const getAllTestimonials = async (req, res) => {
       .populate("course", "name");
     res.status(200).json({ testimonials });
 
-    // console.log("Fetched testimonials with student data:", testimonials);
+    // console.log( testimonials);
 
   } catch (error) {
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
 
-// Get Approved Testimonials for public display
+
 const getApprovedTestimonials = async (req, res) => {
   try {
     const testimonials = await Testimonial.find({ isApproved: true })

@@ -75,17 +75,18 @@ const getStudentsByCourse = async (req, res) => {
   const { courseId } = req.params;
 
   try {
-    // Find active enrollments for the course and populate user details
     const enrollments = await CourseOrder.find({
       "course.courseId": courseId,
       enrollmentStatus: "ACTIVE",
     }).populate("userId", "firstName lastName email");
 
-    const students = enrollments.map((enroll) => ({
-      _id: enroll.userId._id,
-      fullName: `${enroll.userId.firstName} ${enroll.userId.lastName}`,
-      email: enroll.userId.email,
-    }));
+    const students = enrollments
+      .filter((enroll) => enroll.userId !== null)
+      .map((enroll) => ({
+        _id: enroll.userId._id,
+        fullName: `${enroll.userId.firstName} ${enroll.userId.lastName}`,
+        email: enroll.userId.email,
+      }));
 
     res.status(200).json({ students });
   } catch (error) {
@@ -93,6 +94,7 @@ const getStudentsByCourse = async (req, res) => {
     res.status(500).json({ msg: "Failed to fetch enrolled students" });
   }
 };
+
 
 const deleteCourse = async (req, res) => {
   const courseId = req.params.id;

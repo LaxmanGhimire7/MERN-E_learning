@@ -32,11 +32,12 @@ import TeachingMethodologies from "./Pages/TeachingMethodologies";
 import AddTestimonial from "./Student/AddTestimonial";
 import ManageTestimonials from "./Admin/ManageTestimonials";
 import ApprovedTestimonials from "./Pages/ApprovedTestimonials";
-import CreateAssignment from "./Instructor/createAssignment";
+import CreateAssignment from "./Instructor/CreateAssignment";
 import StudentAssignments from "./Student/StudentAssignments";
 import InstructorSubmissions from "./Instructor/InstructorSubmissions";
 import InstructorAssignmentList from "./Instructor/InstructorAssignmentList";
 import StudentSubmissions from "./Student/StudentSubmissions";
+import ForgotPassword from "./Pages/ForgotPassword";
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
         <Route path="/registration" element={<Registration />} />
         <Route path="/success/:id" element={<Success />} />
         <Route path="/footer" element={<Footer />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/termsAndConditions" element={<TermsAndConditions />} />
         <Route
           path="/approvedTestimonials"

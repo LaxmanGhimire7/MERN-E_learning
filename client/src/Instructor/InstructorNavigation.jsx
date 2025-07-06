@@ -7,7 +7,7 @@ function InstructorNavigation() {
   const { user } = useContext(AuthContext);
 
   return (
-    <div className="w-64 min-h-screen bg-white shadow p-4 flex flex-col justify-between">
+    <div className="w-64 min-h-screen h-full bg-white shadow p-4 flex flex-col justify-between">
       <div>
         {/* Profile Info */}
         <NavLink

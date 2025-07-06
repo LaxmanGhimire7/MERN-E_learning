@@ -104,7 +104,15 @@ const userSchema = new mongoose.Schema(
         type: String,
       },
     ],
+
+    resetToken: {
+      type: String,
+    },
+    resetTokenExpiry: {
+      type: Date,
+    },
   },
+
   {
     timestamps: true,
     toJSON: {

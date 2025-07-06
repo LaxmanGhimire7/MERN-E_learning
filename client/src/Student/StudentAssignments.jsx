@@ -198,9 +198,21 @@ function StudentAssignments() {
                     <FaClock /> Due: {formatDate(assignment.dueDate)}
                   </p>
 
-                  <p className="text-sm text-gray-700 mb-6 flex-grow">
-                    {assignment.description || "No description provided."}
-                  </p>
+                 {assignment.attachment && (
+  <p className="text-sm text-red-700 mb-4 flex items-center gap-2">
+    <FaPaperclip className="text-red-600" />
+    Assignment File:{" "}
+    <a
+      href={`http://localhost:9000/assignment/${assignment.attachment}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline text-blue-700 hover:text-blue-900 font-medium"
+    >
+      View / Download
+    </a>
+  </p>
+)}
+
 
                   {submitted ? (
                     <div className="bg-green-50 border border-green-300 p-4 rounded-lg text-green-900 text-sm shadow-inner">
