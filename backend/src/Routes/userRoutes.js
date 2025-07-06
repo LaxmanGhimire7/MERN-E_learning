@@ -4,6 +4,7 @@ const {
   getUser,
   getAllUser,
   deleteUser,
+  forgotPassword,
   editUser,
 } = require("../Controller/userController");
 const express = require("express");
@@ -16,6 +17,7 @@ router.post("/login", login);
 router.get("/getUser", authMiddleware, getUser);
 router.get("/getAllUser", authMiddleware, getAllUser);
 router.put("/editUser", upload.single("image"), authMiddleware, editUser);
+router.post("/forgot-password", forgotPassword);
 router.delete("/deleteUser/:id", authMiddleware, deleteUser);
 
 module.exports = router;
