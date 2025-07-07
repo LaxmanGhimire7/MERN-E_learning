@@ -10,7 +10,7 @@ function TeachingMethodologies() {
     {
       id: "02",
       title: "Hands-on Practice",
-      img: "https://media.licdn.com/dms/image/v2/C4D12AQGhJnGxRkjOiQ/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1604592992838?e=1756339200&v=beta&t=R1S4PyLZE0vXvPiqiLJoenwegQkELGtTNIhuh955agw",
+      img: "https://www.elaconnect.in/images/Illustration_02.png",
     },
     {
       id: "03",
@@ -20,17 +20,17 @@ function TeachingMethodologies() {
     {
       id: "04",
       title: "Evaluation",
-      img: "https://petrsu.ru/files/news_notice_event/2023/6/7/thumbnails/300_1686136615_1629786519testmin.jpg",
+      img: "https://img.freepik.com/premium-vector/man-getting-car-loan-approved-trending-concept-flat-illustration_720185-927.jpg",
     },
     {
       id: "05",
       title: "Interview And CV Preparation",
-      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX_OkLz6yx6946wnLCgbhlQarZEnDWC11nY9n2waAtvk4ZqX6XWTAba9MdlYuhPgrXwtI&usqp=CAU",
+      img: "https://media.licdn.com/dms/image/v2/D5612AQFDXKPNCgtF3w/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1703068832143?e=2147483647&v=beta&t=A32ssDDYE_xoVnuRCmQZssQVo1OFtY3ypK4Kta8yg8w",
     },
      {
       id: "06",
       title: "Internships and Job Opportunities",
-      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX_OkLz6yx6946wnLCgbhlQarZEnDWC11nY9n2waAtvk4ZqX6XWTAba9MdlYuhPgrXwtI&usqp=CAU",
+      img: "https://www.yeastar.com/wp-content/uploads/2020/12/call-center-reporting-blog-header.png",
     },
   ];
 

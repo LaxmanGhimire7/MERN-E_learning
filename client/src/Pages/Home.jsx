@@ -266,7 +266,7 @@ function Home() {
               else
                 return <FaRegStar key={i} className="w-4 h-4 text-gray-200" />;
             })}
-            <span className="ml-1 text-gray-500">({item.rating})</span>
+            
           </div>
 
           {/* Price */}

@@ -56,13 +56,13 @@ const getStudentAssignments = async (req, res) => {
   try {
     const studentId = new mongoose.Types.ObjectId(req.user.id);
 
-    // Find all active course orders for this student
+    //yeta chai saab active status: Active vako find garxa
     const orders = await CourseOrder.find({
       userId: studentId,
       enrollmentStatus: "ACTIVE",
     });
 
-    // Extract all enrolled courseIds from all orders (flatten array)
+    //enrolled courseIds from all orders 
     const enrolledCourseIds = orders
       .flatMap(order => order.course.map(c => c.courseId.toString()))
       .filter(Boolean);
