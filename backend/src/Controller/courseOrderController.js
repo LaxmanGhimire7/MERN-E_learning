@@ -1,4 +1,5 @@
 const CourseOrder = require("../Model/courseOrderModel");
+const mongoose = require("mongoose")
 
 const createCourseOrder = async (req, res) => {
   try {
@@ -24,6 +25,11 @@ const createCourseOrder = async (req, res) => {
 const getEnrollmentCount = async (req, res) => {
   try {
     const { courseId } = req.params;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ msg: "Invalid courseId" });
+    }
 
     const count = await CourseOrder.countDocuments({
       "course.courseId": courseId,

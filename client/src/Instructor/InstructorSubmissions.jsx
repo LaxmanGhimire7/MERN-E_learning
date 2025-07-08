@@ -6,46 +6,39 @@ function InstructorSubmissions() {
   const { assignmentId } = useParams();
   const { state } = useContext(AuthContext);
   const [submissions, setSubmissions] = useState([]);
+  const [assignmentTitle, setAssignmentTitle] = useState("");
   const [loading, setLoading] = useState(true);
-  const [grading, setGrading] = useState({});
-  const [feedbacks, setFeedbacks] = useState({});
   const [grades, setGrades] = useState({});
-  const [gradedSubmissions, setGradedSubmissions] = useState({});
+  const [feedbacks, setFeedbacks] = useState({});
+  const [graded, setGraded] = useState({});
 
   useEffect(() => {
-    if (!assignmentId) return;
-
     const fetchSubmissions = async () => {
       try {
         const res = await fetch(
           `http://localhost:9000/api/assignmentSubmission/instructor/${assignmentId}`,
           {
-            headers: {
-              Authorization: `Bearer ${state.token}`,
-            },
+            headers: { Authorization: `Bearer ${state.token}` },
           }
         );
         const data = await res.json();
         if (res.ok) {
           setSubmissions(data.submissions || []);
-
-          // Initialize feedback and grades states
-          const fb = {};
-          const gr = {};
-          const graded = {};
-          data.submissions.forEach((sub) => {
-            fb[sub._id] = sub.feedback || "";
-            gr[sub._id] = sub.grade || "";
-            graded[sub._id] = !!sub.grade; // Mark as graded if grade exists
+          setAssignmentTitle(data.assignment?.title || "Assignment");
+          const gradesMap = {}, feedbacksMap = {}, gradedMap = {};
+          data.submissions.forEach((s) => {
+            gradesMap[s._id] = s.grade || "";
+            feedbacksMap[s._id] = s.feedback || "";
+            gradedMap[s._id] = !!s.grade;
           });
-          setFeedbacks(fb);
-          setGrades(gr);
-          setGradedSubmissions(graded);
+          setGrades(gradesMap);
+          setFeedbacks(feedbacksMap);
+          setGraded(gradedMap);
         } else {
           console.error("Failed to load submissions");
         }
       } catch (err) {
-        console.error("Error fetching submissions:", err);
+        console.error("Error:", err);
       } finally {
         setLoading(false);
       }
@@ -54,54 +47,44 @@ function InstructorSubmissions() {
     fetchSubmissions();
   }, [assignmentId, state.token]);
 
-  const handleSubmitGrade = async (submissionId) => {
-    setGrading((prev) => ({ ...prev, [submissionId]: true }));
+  const handleSubmit = async (id) => {
     try {
-      const res = await fetch(
-        `http://localhost:9000/api/assignmentSubmission/grade/${submissionId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${state.token}`,
-          },
-          body: JSON.stringify({
-            grade: grades[submissionId],
-            feedback: feedbacks[submissionId],
-          }),
-        }
-      );
+      const res = await fetch(`http://localhost:9000/api/assignmentSubmission/grade/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${state.token}`,
+        },
+        body: JSON.stringify({
+          grade: grades[id],
+          feedback: feedbacks[id],
+        }),
+      });
       const data = await res.json();
       if (res.ok) {
         alert("Graded successfully");
-        setGradedSubmissions((prev) => ({ ...prev, [submissionId]: true }));
+        setGraded((prev) => ({ ...prev, [id]: true }));
       } else {
-        alert(data.msg || "Failed to submit grade");
+        alert(data.msg || "Failed to grade");
       }
-    } catch (err) {
-      console.error("Grade submission failed", err);
-      alert("Error submitting grade");
-    } finally {
-      setGrading((prev) => ({ ...prev, [submissionId]: false }));
+    } catch {
+      alert("Error grading");
     }
   };
 
-  if (loading) return <div>Loading submissions...</div>;
+  if (loading) return <p className="p-4">Loading...</p>;
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Submissions for Assignment</h2>
+      <h1 className="text-2xl font-bold mb-4">{assignmentTitle} - Submissions</h1>
       {submissions.length === 0 ? (
-        <p>No submissions yet.</p>
+        <p>No submissions found.</p>
       ) : (
         submissions.map((sub) => (
-          <div
-            key={sub._id}
-            className="border p-4 mb-4 rounded shadow bg-white"
-          >
+          <div key={sub._id} className="bg-white p-4 shadow rounded mb-4">
             <p>
-              <strong>Student:</strong> {sub.studentId?.firstName}{" "}
-              {sub.studentId?.lastName} ({sub.studentId?.email})
+              <strong>Student:</strong>{" "}
+              {sub.studentId?.firstName} {sub.studentId?.lastName} ({sub.studentId?.email})
             </p>
             <p>
               <strong>File:</strong>{" "}
@@ -111,56 +94,36 @@ function InstructorSubmissions() {
                 rel="noopener noreferrer"
                 className="text-blue-600 underline"
               >
-                View Submission
+                View
               </a>
             </p>
-
             <div className="mt-2">
-              <label className="block font-semibold mb-1">Grade:</label>
+              <label className="block font-medium">Grade</label>
               <input
                 type="text"
-                className="border p-1 w-full rounded"
+                className="w-full p-2 border rounded"
                 value={grades[sub._id]}
-                onChange={(e) =>
-                  setGrades((prev) => ({
-                    ...prev,
-                    [sub._id]: e.target.value,
-                  }))
-                }
-                disabled={gradedSubmissions[sub._id]} // disable if graded
+                onChange={(e) => setGrades((prev) => ({ ...prev, [sub._id]: e.target.value }))}
+                disabled={graded[sub._id]}
               />
             </div>
-
             <div className="mt-2">
-              <label className="block font-semibold mb-1">Feedback:</label>
+              <label className="block font-medium">Feedback</label>
               <textarea
-                rows={3}
-                className="border p-2 w-full rounded"
+                className="w-full p-2 border rounded"
                 value={feedbacks[sub._id]}
-                onChange={(e) =>
-                  setFeedbacks((prev) => ({
-                    ...prev,
-                    [sub._id]: e.target.value,
-                  }))
-                }
-                disabled={gradedSubmissions[sub._id]} // disable if graded
+                onChange={(e) => setFeedbacks((prev) => ({ ...prev, [sub._id]: e.target.value }))}
+                disabled={graded[sub._id]}
               />
             </div>
-
             <button
-              onClick={() => handleSubmitGrade(sub._id)}
-              disabled={grading[sub._id] || gradedSubmissions[sub._id]}
+              onClick={() => handleSubmit(sub._id)}
+              disabled={graded[sub._id]}
               className={`mt-3 px-4 py-2 rounded text-white ${
-                grading[sub._id] || gradedSubmissions[sub._id]
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
+                graded[sub._id] ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
               }`}
             >
-              {grading[sub._id]
-                ? "Saving..."
-                : gradedSubmissions[sub._id]
-                ? "Graded"
-                : "Save Grade & Feedback"}
+              {graded[sub._id] ? "Graded" : "Save"}
             </button>
           </div>
         ))

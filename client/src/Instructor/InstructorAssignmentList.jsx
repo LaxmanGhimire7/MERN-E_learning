@@ -22,7 +22,7 @@ function InstructorAssignmentList() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", dueDate: "" });
   const [courseFilter, setCourseFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All"); // NEW status filter
+  const [statusFilter, setStatusFilter] = useState("All");
   const [expandedAssignment, setExpandedAssignment] = useState(null);
 
   useEffect(() => {
@@ -32,12 +32,9 @@ function InstructorAssignmentList() {
   const fetchAssignments = async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        "http://localhost:9000/api/assignmentSubmission/instructor",
-        {
-          headers: { Authorization: `Bearer ${state.token}` },
-        }
-      );
+      const res = await fetch("http://localhost:9000/api/assignmentSubmission/instructor", {
+        headers: { Authorization: `Bearer ${state.token}` },
+      });
       const data = await res.json();
       if (res.ok) setAssignments(data.assignments || []);
       else toast.error(data.msg || "Failed to load assignments");
@@ -61,13 +58,10 @@ function InstructorAssignmentList() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this assignment?")) return;
     try {
-      const res = await fetch(
-        `http://localhost:9000/api/assignment/deleteAssignment/${id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${state.token}` },
-        }
-      );
+      const res = await fetch(`http://localhost:9000/api/assignment/deleteAssignment/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${state.token}` },
+      });
       const data = await res.json();
       if (res.ok) {
         toast.success("Assignment deleted successfully");
@@ -104,31 +98,32 @@ function InstructorAssignmentList() {
     }
   };
 
-  const filteredAssignments = assignments.filter((a) => {
-    const courseMatch = courseFilter === "All" || a.courseId.name === courseFilter;
-    const now = new Date();
-    let statusMatch = true;
-    if (statusFilter === "Active") {
-      statusMatch = new Date(a.dueDate) > now;
-    } else if (statusFilter === "Finished") {
-      statusMatch = new Date(a.dueDate) <= now;
-    }
-    return courseMatch && statusMatch;
-  });
+  const filteredAssignments = assignments
+    .filter((a) => a.courseId && a.courseId.name) // filter out broken data
+    .filter((a) => {
+      const courseMatch = courseFilter === "All" || a.courseId?.name === courseFilter;
+      const now = new Date();
+      let statusMatch = true;
+      if (statusFilter === "Active") {
+        statusMatch = new Date(a.dueDate) > now;
+      } else if (statusFilter === "Finished") {
+        statusMatch = new Date(a.dueDate) <= now;
+      }
+      return courseMatch && statusMatch;
+    });
 
-  const uniqueCourses = ["All", ...new Set(assignments.map((a) => a.courseId.name))];
+  const uniqueCourses = [
+    "All",
+    ...new Set(assignments.map((a) => a.courseId?.name).filter(Boolean)),
+  ];
 
   const toggleAssignment = (id) => {
-    if (expandedAssignment === id) {
-      setExpandedAssignment(null);
-    } else {
-      setExpandedAssignment(id);
-    }
+    setExpandedAssignment(expandedAssignment === id ? null : id);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center ">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
           <p className="text-gray-600 text-lg">Loading assignments...</p>
@@ -144,9 +139,7 @@ function InstructorAssignmentList() {
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Assignment Management
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Assignment Management</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Manage and track assignments for your courses
           </p>
@@ -163,7 +156,6 @@ function InstructorAssignmentList() {
               <p className="text-2xl font-bold">{assignments.length}</p>
             </div>
           </div>
-
           <div className="flex-1 min-w-[220px] bg-white rounded-xl shadow p-6 border-l-4 border-blue-500 flex items-center gap-4">
             <div className="bg-blue-100 p-3 rounded-lg">
               <FaCalendarAlt className="text-blue-600 text-xl" />
@@ -175,7 +167,6 @@ function InstructorAssignmentList() {
               </p>
             </div>
           </div>
-
           <div className="flex-1 min-w-[220px] bg-white rounded-xl shadow p-6 border-l-4 border-green-500 flex items-center gap-4">
             <div className="bg-green-100 p-3 rounded-lg">
               <FaBook className="text-green-600 text-xl" />
@@ -185,7 +176,6 @@ function InstructorAssignmentList() {
               <p className="text-2xl font-bold">{uniqueCourses.length - 1}</p>
             </div>
           </div>
-
           <div className="flex-1 min-w-[220px] bg-white rounded-xl shadow p-6 border-l-4 border-purple-500 flex items-center gap-4">
             <div className="bg-purple-100 p-3 rounded-lg">
               <FaFilter className="text-purple-600 text-xl" />
@@ -197,15 +187,13 @@ function InstructorAssignmentList() {
           </div>
         </div>
 
-        {/* Filters (Course + Status) */}
-        <div className="flex flex-col sm:flex-row justify-start sm:justify-between items-start sm:items-center mb-6 bg-white p-4 rounded-xl shadow gap-4">
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow">
           <div className="w-full sm:w-auto">
-            <label className="block text-gray-700 font-medium mb-1">
-              Filter by Course:
-            </label>
+            <label className="block text-gray-700 font-medium mb-1">Filter by Course:</label>
             <div className="relative max-w-xs">
               <select
-                className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full p-3 pl-10 rounded-lg border border-gray-300"
                 value={courseFilter}
                 onChange={(e) => setCourseFilter(e.target.value)}
               >
@@ -222,12 +210,10 @@ function InstructorAssignmentList() {
           </div>
 
           <div className="w-full sm:w-auto">
-            <label className="block text-gray-700 font-medium mb-1">
-              Filter by Status:
-            </label>
+            <label className="block text-gray-700 font-medium mb-1">Filter by Status:</label>
             <div className="relative max-w-xs">
               <select
-                className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full p-3 pl-10 rounded-lg border border-gray-300"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -242,23 +228,18 @@ function InstructorAssignmentList() {
           </div>
         </div>
 
-        {/* Assignments List */}
+        {/* Assignment List */}
         {filteredAssignments.length === 0 ? (
           <div className="bg-white rounded-xl shadow p-12 text-center">
             <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-800 mb-2">
-              No Assignments Found
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Create your first assignment to get started
-            </p>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">No Assignments Found</h3>
+            <p className="text-gray-600">Create your first assignment to get started</p>
           </div>
         ) : (
           <div className="space-y-6">
             {filteredAssignments.map((assignment) => {
               const isPastDue = new Date(assignment.dueDate) < new Date();
               const isExpanded = expandedAssignment === assignment._id;
-
               return (
                 <div
                   key={assignment._id}
@@ -266,39 +247,31 @@ function InstructorAssignmentList() {
                     isExpanded ? "border-l-4 border-indigo-500" : ""
                   }`}
                 >
-                  <div
-                    className="p-5 cursor-pointer"
-                    onClick={() => toggleAssignment(assignment._id)}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                  <div className="p-5 cursor-pointer" onClick={() => toggleAssignment(assignment._id)}>
+                    <div className="flex flex-col sm:flex-row justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-start">
                           <div className="bg-indigo-100 p-2 rounded-lg mr-4">
                             <FaBook className="text-indigo-600" />
                           </div>
                           <div>
-                            <div className="flex items-center flex-wrap gap-2 mb-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
                               <Link
                                 to={`/instructor-dashboard/instructorSubmissions/${assignment._id}`}
-                                className="text-gray-900 font-semibold text-lg hover:text-indigo-700"
+                                className="text-lg font-semibold text-gray-900 hover:text-indigo-700"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 {assignment.title}
                               </Link>
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {assignment.courseId.name}
+                                {assignment.courseId?.name || "Unknown Course"}
                               </span>
                             </div>
-
-                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mt-2">
-                              <div className="flex items-center">
-                                <FaCalendarAlt className="mr-1.5 text-gray-500" />
-                                <span>
-                                  Due: {format(new Date(assignment.dueDate), "PPP 'at' p")}
-                                </span>
-                              </div>
+                            <div className="text-sm text-gray-600 mt-2">
+                              <FaCalendarAlt className="inline-block mr-1.5 text-gray-500" />
+                              Due: {format(new Date(assignment.dueDate), "PPP 'at' p")}
                               {isPastDue && (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                   Submission closed
                                 </span>
                               )}
@@ -333,7 +306,6 @@ function InstructorAssignmentList() {
                         </button>
                       </div>
                     </div>
-
                     <div className="flex justify-center mt-3">
                       <FaChevronRight
                         className={`text-gray-400 transition-transform duration-300 ${
@@ -343,7 +315,7 @@ function InstructorAssignmentList() {
                     </div>
                   </div>
 
-                  {/* Expanded Content */}
+                  {/* Expanded Section */}
                   {isExpanded && (
                     <div className="border-t border-gray-100 p-5 bg-gray-50">
                       <div className="mb-4">
@@ -352,7 +324,6 @@ function InstructorAssignmentList() {
                           {assignment.description || "No description provided"}
                         </p>
                       </div>
-
                       <div className="flex justify-end">
                         <Link
                           to={`/instructor-dashboard/instructorSubmissions/${assignment._id}`}
@@ -369,7 +340,7 @@ function InstructorAssignmentList() {
           </div>
         )}
 
-        {/* Edit Modal */}
+        {/* Modal (Edit) */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl w-full max-w-md shadow-xl transform transition-all">
@@ -397,9 +368,7 @@ function InstructorAssignmentList() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-medium mb-1">
-                      Description
-                    </label>
+                    <label className="block text-gray-700 font-medium mb-1">Description</label>
                     <textarea
                       value={form.description}
                       onChange={(e) => setForm({ ...form, description: e.target.value })}

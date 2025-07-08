@@ -57,19 +57,19 @@ function InstructorHome() {
         const assignmentsList = assignmentsData.assignments || [];
         setAssignments(assignmentsList);
 
-        // 2. For each assignment, fetch enrollments count
-        // Using your courseOrder API: /api/order/enrollments/count/:courseId
-        // We'll do this for unique courses
 
-        const uniqueCourseIds = [
-          ...new Set(assignmentsList.map((a) => a.courseId?._id)),
-        ];
+       const uniqueCourseIds = [
+  ...new Set(assignmentsList.map((a) => a.courseId?._id).filter(Boolean)), // <- filter undefined/null
+];
+
 
         const enrollmentCounts = {};
         for (const courseId of uniqueCourseIds) {
-          const resEnroll = await fetch(
-            `http://localhost:9000/api/order/enrollments/count/${courseId}`,
-            { headers: { Authorization: `Bearer ${token}` } }
+  if (!courseId) continue; // Skip if undefined
+  console.log("Fetching enrollment count for:", courseId);
+  const resEnroll = await fetch(
+    `http://localhost:9000/api/order/enrollments/count/${courseId}`,
+    { headers: { Authorization: `Bearer ${token}` } }
           );
           if (resEnroll.ok) {
             const data = await resEnroll.json();
@@ -105,14 +105,20 @@ function InstructorHome() {
 
             // For recent submissions list, gather all
             allSubmissions.push(
-              ...data.submissions.map((s) => ({
-                id: s._id,
-                assignmentTitle: assignment.title,
-                studentName: `${s.studentId.firstName} ${s.studentId.lastName}`,
-                submittedAt: s.createdAt || s.updatedAt,
-                graded: s.grade !== null && s.grade !== undefined,
-              }))
-            );
+  ...data.submissions.map((s) => {
+    const student = s.studentId;
+    return {
+      id: s._id,
+      assignmentTitle: assignment.title,
+      studentName: student
+        ? `${student.firstName || "Unknown"} ${student.lastName || ""}`
+        : "Unknown Student",
+      submittedAt: s.createdAt || s.updatedAt,
+      graded: s.grade !== null && s.grade !== undefined,
+    };
+  })
+);
+
           } else {
             submissionsCounts[assignment._id] = 0;
           }
